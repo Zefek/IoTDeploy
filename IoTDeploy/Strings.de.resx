@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Program.cs -->
+  <data name="Usage" xml:space="preserve">
+    <value>IoTDeploy CLI – Firmware-Bereitstellung über GitHub Actions
+
+Verwendung:
+  IoTDeploy.exe &lt;Repository&gt; &lt;Branch&gt; &lt;Umgebung&gt; &lt;Port&gt;
+
+Beispiel:
+  IoTDeploy.exe MyFirmware main production COM3
+
+Konfiguration:
+  appsettings.json und .pem-Datei müssen im selben Ordner wie die exe liegen.</value>
+  </data>
+  <data name="ErrorExpected4Args" xml:space="preserve">
+    <value>Fehler: 4 Argumente erwartet.
+</value>
+  </data>
+  <data name="ErrorConfiguration" xml:space="preserve">
+    <value>Konfigurationsfehler: {0}</value>
+  </data>
+  <data name="InvalidConfiguration" xml:space="preserve">
+    <value>Ungültige Konfiguration in appsettings.json:</value>
+  </data>
+  <data name="ConnectingToGitHub" xml:space="preserve">
+    <value>Verbindung zu GitHub wird hergestellt...</value>
+  </data>
+  <data name="DeployInfo" xml:space="preserve">
+    <value>Deploy: {0} / {1} → {2} auf {3}</value>
+  </data>
+  <data name="CancellingDeploy" xml:space="preserve">
+    <value>Deploy wird abgebrochen (Strg+C)...</value>
+  </data>
+  <data name="DeploySuccess" xml:space="preserve">
+    <value>Deploy erfolgreich abgeschlossen.</value>
+  </data>
+  <data name="DeployFailed" xml:space="preserve">
+    <value>Deploy fehlgeschlagen: {0}</value>
+  </data>
+  <data name="DeployUnknown" xml:space="preserve">
+    <value>Deploy abgeschlossen (Status unbekannt).</value>
+  </data>
+  <data name="DeployCancelled" xml:space="preserve">
+    <value>Deploy abgebrochen.</value>
+  </data>
+  <data name="TimeoutError" xml:space="preserve">
+    <value>Zeitüberschreitung: {0}</value>
+  </data>
+  <data name="DeployError" xml:space="preserve">
+    <value>Deploy-Fehler: {0}</value>
+  </data>
+  <data name="AppSettingsNotFound" xml:space="preserve">
+    <value>Datei appsettings.json nicht gefunden.
+Legen Sie sie im Anwendungsordner ab.</value>
+  </data>
+  <data name="AppSettingsInvalid" xml:space="preserve">
+    <value>Datei appsettings.json ist leer oder ungültig.</value>
+  </data>
+
+  <!-- AppSettings.cs -->
+  <data name="ValidateAppId" xml:space="preserve">
+    <value>GitHub.AppId ist nicht gesetzt</value>
+  </data>
+  <data name="ValidateInstallationId" xml:space="preserve">
+    <value>GitHub.InstallationId ist nicht gesetzt</value>
+  </data>
+  <data name="ValidateOwner" xml:space="preserve">
+    <value>GitHub.Owner ist nicht gesetzt</value>
+  </data>
+  <data name="ValidatePemFilePattern" xml:space="preserve">
+    <value>GitHub.PemFilePattern ist nicht gesetzt</value>
+  </data>
+  <data name="ValidateWorkflowTimeout" xml:space="preserve">
+    <value>Runner.WorkflowTimeoutMinutes muss größer als 0 sein</value>
+  </data>
+  <data name="ValidateLabels" xml:space="preserve">
+    <value>Runner.Labels darf nicht leer sein</value>
+  </data>
+
+  <!-- GithubProvider.cs -->
+  <data name="PemFileNotFound" xml:space="preserve">
+    <value>Private-Key-Datei der GitHub App nicht gefunden (Muster: '{0}').
+Legen Sie die Datei im Anwendungsordner ab oder aktualisieren Sie PemFilePattern in appsettings.json.</value>
+  </data>
+  <data name="CannotReadPrivateKey" xml:space="preserve">
+    <value>Privater Schlüssel kann nicht gelesen werden:
+{0}
+{1}</value>
+  </data>
+  <data name="AuthFailed" xml:space="preserve">
+    <value>GitHub App-Authentifizierung fehlgeschlagen.
+Überprüfen Sie, ob der private Schlüssel zur App-ID und Installation passt.</value>
+  </data>
+  <data name="InstallationNotFound" xml:space="preserve">
+    <value>GitHub App-Installation mit ID {0} wurde nicht gefunden.
+Überprüfen Sie die installationId in den Anwendungseinstellungen.</value>
+  </data>
+  <data name="StartingWorkflow" xml:space="preserve">
+    <value>Workflow auf GitHub wird gestartet...</value>
+  </data>
+  <data name="BranchNotFound" xml:space="preserve">
+    <value>Branch '{0}' wurde im Repository '{1}' nicht gefunden.</value>
+  </data>
+  <data name="WaitingForApproval" xml:space="preserve">
+    <value>Warte auf Deployment-Genehmigung auf GitHub...</value>
+  </data>
+  <data name="RepositoryNotFound" xml:space="preserve">
+    <value>Repository '{0}' wurde nicht gefunden.</value>
+  </data>
+  <data name="WaitingForWorkflow" xml:space="preserve">
+    <value>Warte auf Workflow-Genehmigung und Start... ({0}s)</value>
+  </data>
+  <data name="WorkflowTimeout" xml:space="preserve">
+    <value>Workflow wurde nicht innerhalb von {0} Minuten genehmigt und gestartet.
+Überprüfen Sie, ob das Deployment auf GitHub genehmigt wurde und der Runner verfügbar ist.</value>
+  </data>
+  <data name="RepositoryNotFoundOrNoActions" xml:space="preserve">
+    <value>Repository '{0}' wurde nicht gefunden oder GitHub Actions ist nicht aktiviert.</value>
+  </data>
+
+  <!-- Runner.cs -->
+  <data name="CheckingRunnerVersion" xml:space="preserve">
+    <value>Aktuelle Runner-Version wird überprüft...</value>
+  </data>
+  <data name="DownloadingRunner" xml:space="preserve">
+    <value>Runner {0} wird heruntergeladen...</value>
+  </data>
+  <data name="RunnerAlreadyDownloaded" xml:space="preserve">
+    <value>Runner {0} ist bereits heruntergeladen.</value>
+  </data>
+  <data name="ExtractingRunner" xml:space="preserve">
+    <value>Runner wird entpackt...</value>
+  </data>
+  <data name="ConfiguringRunner" xml:space="preserve">
+    <value>Runner wird konfiguriert...</value>
+  </data>
+  <data name="RunnerConfigFailed" xml:space="preserve">
+    <value>Runner-Konfiguration fehlgeschlagen</value>
+  </data>
+  <data name="CheckingArduinoVersion" xml:space="preserve">
+    <value>Aktuelle Arduino CLI-Version wird überprüft...</value>
+  </data>
+  <data name="DownloadingArduino" xml:space="preserve">
+    <value>Arduino CLI {0} wird heruntergeladen...</value>
+  </data>
+  <data name="ArduinoAlreadyDownloaded" xml:space="preserve">
+    <value>Arduino CLI {0} ist bereits heruntergeladen.</value>
+  </data>
+  <data name="ExtractingArduino" xml:space="preserve">
+    <value>Arduino CLI wird entpackt...</value>
+  </data>
+  <data name="RunnerRunning" xml:space="preserve">
+    <value>Runner läuft, Firmware wird hochgeladen...</value>
+  </data>
+  <data name="RunnerFailed" xml:space="preserve">
+    <value>Runner mit Fehler beendet</value>
+  </data>
+</root>

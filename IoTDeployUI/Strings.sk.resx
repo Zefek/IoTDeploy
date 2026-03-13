@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Program.cs -->
+  <data name="ConfigErrorTitle" xml:space="preserve">
+    <value>Chyba konfigurácie</value>
+  </data>
+  <data name="InvalidConfigPrefix" xml:space="preserve">
+    <value>Neplatná konfigurácia v appsettings.json:
+
+• </value>
+  </data>
+  <data name="AppSettingsNotFound" xml:space="preserve">
+    <value>Súbor appsettings.json nebol nájdený.
+Umiestnite ho do priečinka aplikácie.</value>
+  </data>
+  <data name="AppSettingsInvalid" xml:space="preserve">
+    <value>Súbor appsettings.json je prázdny alebo neplatný.</value>
+  </data>
+
+  <!-- Form1.cs -->
+  <data name="ConnectingToGitHub" xml:space="preserve">
+    <value>Pripájam sa ku GitHubu...</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Pripravené.</value>
+  </data>
+  <data name="MissingKeyFileTitle" xml:space="preserve">
+    <value>Chýba súbor kľúča</value>
+  </data>
+  <data name="AuthErrorTitle" xml:space="preserve">
+    <value>Chyba autentifikácie</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Chyba</value>
+  </data>
+  <data name="UnexpectedInitError" xml:space="preserve">
+    <value>Neočakávaná chyba pri inicializácii:
+{0}</value>
+  </data>
+  <data name="StartingDeploy" xml:space="preserve">
+    <value>Spúšťam nasadenie...</value>
+  </data>
+  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
+    <value>Načítavam vetvy a prostredia...</value>
+  </data>
+  <data name="LoadErrorTitle" xml:space="preserve">
+    <value>Chyba načítavania</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Neočakávaná chyba:
+{0}</value>
+  </data>
+  <data name="TimeoutTitle" xml:space="preserve">
+    <value>Časový limit</value>
+  </data>
+  <data name="DeployErrorTitle" xml:space="preserve">
+    <value>Chyba nasadenia</value>
+  </data>
+  <data name="DeploySuccess" xml:space="preserve">
+    <value>Nasadenie úspešne dokončené</value>
+  </data>
+  <data name="DeployCancelled" xml:space="preserve">
+    <value>Nasadenie zrušené</value>
+  </data>
+  <data name="DeployFailed" xml:space="preserve">
+    <value>Nasadenie zlyhalo ({0})</value>
+  </data>
+  <data name="LogNotFound" xml:space="preserve">
+    <value>Súbor logu zatiaľ neexistuje.
+Očakávaný priečinok: {0}</value>
+  </data>
+  <data name="LogNotFoundTitle" xml:space="preserve">
+    <value>Log nenájdený</value>
+  </data>
+  <data name="MissingValuesMessage" xml:space="preserve">
+    <value>Vyplňte všetky hodnoty pred nasadením.</value>
+  </data>
+  <data name="MissingValuesTitle" xml:space="preserve">
+    <value>Chýbajú hodnoty</value>
+  </data>
+  <data name="PortUnavailable" xml:space="preserve">
+    <value>Port {0} nie je dostupný.
+Overte pripojenie zariadenia.</value>
+  </data>
+  <data name="PortUnavailableTitle" xml:space="preserve">
+    <value>Port nedostupný</value>
+  </data>
+
+  <!-- Form1.Designer.cs -->
+  <data name="LabelRepository" xml:space="preserve">
+    <value>Repozitár</value>
+  </data>
+  <data name="LabelBranch" xml:space="preserve">
+    <value>Vetva</value>
+  </data>
+  <data name="LabelEnvironment" xml:space="preserve">
+    <value>Prostredie</value>
+  </data>
+  <data name="ButtonDeploy" xml:space="preserve">
+    <value>Nasadiť</value>
+  </data>
+  <data name="ButtonCancel" xml:space="preserve">
+    <value>Zrušiť</value>
+  </data>
+  <data name="ButtonLog" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="LabelCom" xml:space="preserve">
+    <value>COM</value>
+  </data>
+  <data name="FormTitle" xml:space="preserve">
+    <value>IoT Deployer</value>
+  </data>
+</root>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Program.cs -->
+  <data name="Usage" xml:space="preserve">
+    <value>IoTDeploy CLI – nasadenie firmware cez GitHub Actions
+
+Použitie:
+  IoTDeploy.exe &lt;repozitár&gt; &lt;vetva&gt; &lt;prostredie&gt; &lt;port&gt;
+
+Príklad:
+  IoTDeploy.exe MyFirmware main production COM3
+
+Konfigurácia:
+  appsettings.json a .pem súbor musia byť v rovnakom priečinku ako exe.</value>
+  </data>
+  <data name="ErrorExpected4Args" xml:space="preserve">
+    <value>Chyba: očakávané 4 argumenty.
+</value>
+  </data>
+  <data name="ErrorConfiguration" xml:space="preserve">
+    <value>Chyba konfigurácie: {0}</value>
+  </data>
+  <data name="InvalidConfiguration" xml:space="preserve">
+    <value>Neplatná konfigurácia v appsettings.json:</value>
+  </data>
+  <data name="ConnectingToGitHub" xml:space="preserve">
+    <value>Pripájam sa ku GitHubu...</value>
+  </data>
+  <data name="DeployInfo" xml:space="preserve">
+    <value>Nasadenie: {0} / {1} → {2} na {3}</value>
+  </data>
+  <data name="CancellingDeploy" xml:space="preserve">
+    <value>Rušenie nasadenia (Ctrl+C)...</value>
+  </data>
+  <data name="DeploySuccess" xml:space="preserve">
+    <value>Nasadenie úspešne dokončené.</value>
+  </data>
+  <data name="DeployFailed" xml:space="preserve">
+    <value>Nasadenie zlyhalo: {0}</value>
+  </data>
+  <data name="DeployUnknown" xml:space="preserve">
+    <value>Nasadenie dokončené (stav neznámy).</value>
+  </data>
+  <data name="DeployCancelled" xml:space="preserve">
+    <value>Nasadenie zrušené.</value>
+  </data>
+  <data name="TimeoutError" xml:space="preserve">
+    <value>Časový limit: {0}</value>
+  </data>
+  <data name="DeployError" xml:space="preserve">
+    <value>Chyba nasadenia: {0}</value>
+  </data>
+  <data name="AppSettingsNotFound" xml:space="preserve">
+    <value>Súbor appsettings.json nebol nájdený.
+Umiestnite ho do priečinka aplikácie.</value>
+  </data>
+  <data name="AppSettingsInvalid" xml:space="preserve">
+    <value>Súbor appsettings.json je prázdny alebo neplatný.</value>
+  </data>
+
+  <!-- AppSettings.cs -->
+  <data name="ValidateAppId" xml:space="preserve">
+    <value>GitHub.AppId nie je nastavené</value>
+  </data>
+  <data name="ValidateInstallationId" xml:space="preserve">
+    <value>GitHub.InstallationId nie je nastavené</value>
+  </data>
+  <data name="ValidateOwner" xml:space="preserve">
+    <value>GitHub.Owner nie je nastavené</value>
+  </data>
+  <data name="ValidatePemFilePattern" xml:space="preserve">
+    <value>GitHub.PemFilePattern nie je nastavené</value>
+  </data>
+  <data name="ValidateWorkflowTimeout" xml:space="preserve">
+    <value>Runner.WorkflowTimeoutMinutes musí byť väčšie ako 0</value>
+  </data>
+  <data name="ValidateLabels" xml:space="preserve">
+    <value>Runner.Labels nesmie byť prázdne</value>
+  </data>
+
+  <!-- GithubProvider.cs -->
+  <data name="PemFileNotFound" xml:space="preserve">
+    <value>Súbor privátneho kľúča GitHub App nebol nájdený (vzor: '{0}').
+Umiestnite súbor do priečinka aplikácie alebo upravte PemFilePattern v appsettings.json.</value>
+  </data>
+  <data name="CannotReadPrivateKey" xml:space="preserve">
+    <value>Nie je možné načítať privátny kľúč:
+{0}
+{1}</value>
+  </data>
+  <data name="AuthFailed" xml:space="preserve">
+    <value>Autentifikácia GitHub App zlyhala.
+Overte, že privátny kľúč zodpovedá App ID a inštalácii.</value>
+  </data>
+  <data name="InstallationNotFound" xml:space="preserve">
+    <value>Inštalácia GitHub App s ID {0} nebola nájdená.
+Overte installationId v nastaveniach aplikácie.</value>
+  </data>
+  <data name="StartingWorkflow" xml:space="preserve">
+    <value>Spúšťam workflow na GitHube...</value>
+  </data>
+  <data name="BranchNotFound" xml:space="preserve">
+    <value>Vetva '{0}' nebola nájdená v repozitári '{1}'.</value>
+  </data>
+  <data name="WaitingForApproval" xml:space="preserve">
+    <value>Čakám na schválenie nasadenia na GitHube...</value>
+  </data>
+  <data name="RepositoryNotFound" xml:space="preserve">
+    <value>Repozitár '{0}' nebol nájdený.</value>
+  </data>
+  <data name="WaitingForWorkflow" xml:space="preserve">
+    <value>Čakám na schválenie a spustenie workflow... ({0}s)</value>
+  </data>
+  <data name="WorkflowTimeout" xml:space="preserve">
+    <value>Workflow nebol schválený a spustený do {0} minút.
+Overte, že nasadenie bolo schválené na GitHube a runner je dostupný.</value>
+  </data>
+  <data name="RepositoryNotFoundOrNoActions" xml:space="preserve">
+    <value>Repozitár '{0}' nebol nájdený alebo GitHub Actions nie je povolený.</value>
+  </data>
+
+  <!-- Runner.cs -->
+  <data name="CheckingRunnerVersion" xml:space="preserve">
+    <value>Zisťujem aktuálnu verziu runnera...</value>
+  </data>
+  <data name="DownloadingRunner" xml:space="preserve">
+    <value>Sťahujem runner {0}...</value>
+  </data>
+  <data name="RunnerAlreadyDownloaded" xml:space="preserve">
+    <value>Runner {0} je už stiahnutý.</value>
+  </data>
+  <data name="ExtractingRunner" xml:space="preserve">
+    <value>Rozbaľujem runner...</value>
+  </data>
+  <data name="ConfiguringRunner" xml:space="preserve">
+    <value>Konfigurujem runner...</value>
+  </data>
+  <data name="RunnerConfigFailed" xml:space="preserve">
+    <value>Konfigurácia runnera zlyhala</value>
+  </data>
+  <data name="CheckingArduinoVersion" xml:space="preserve">
+    <value>Zisťujem aktuálnu verziu Arduino CLI...</value>
+  </data>
+  <data name="DownloadingArduino" xml:space="preserve">
+    <value>Sťahujem Arduino CLI {0}...</value>
+  </data>
+  <data name="ArduinoAlreadyDownloaded" xml:space="preserve">
+    <value>Arduino CLI {0} je už stiahnuté.</value>
+  </data>
+  <data name="ExtractingArduino" xml:space="preserve">
+    <value>Rozbaľujem Arduino CLI...</value>
+  </data>
+  <data name="RunnerRunning" xml:space="preserve">
+    <value>Runner beží, nahrávam firmware...</value>
+  </data>
+  <data name="RunnerFailed" xml:space="preserve">
+    <value>Runner skončil s chybou</value>
+  </data>
+</root>

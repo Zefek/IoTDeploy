@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Program.cs -->
+  <data name="ConfigErrorTitle" xml:space="preserve">
+    <value>Błąd konfiguracji</value>
+  </data>
+  <data name="InvalidConfigPrefix" xml:space="preserve">
+    <value>Nieprawidłowa konfiguracja w appsettings.json:
+
+• </value>
+  </data>
+  <data name="AppSettingsNotFound" xml:space="preserve">
+    <value>Nie znaleziono pliku appsettings.json.
+Umieść go w folderze aplikacji.</value>
+  </data>
+  <data name="AppSettingsInvalid" xml:space="preserve">
+    <value>Plik appsettings.json jest pusty lub nieprawidłowy.</value>
+  </data>
+
+  <!-- Form1.cs -->
+  <data name="ConnectingToGitHub" xml:space="preserve">
+    <value>Łączenie z GitHubem...</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Gotowe.</value>
+  </data>
+  <data name="MissingKeyFileTitle" xml:space="preserve">
+    <value>Brak pliku klucza</value>
+  </data>
+  <data name="AuthErrorTitle" xml:space="preserve">
+    <value>Błąd uwierzytelniania</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Błąd</value>
+  </data>
+  <data name="UnexpectedInitError" xml:space="preserve">
+    <value>Nieoczekiwany błąd podczas inicjalizacji:
+{0}</value>
+  </data>
+  <data name="StartingDeploy" xml:space="preserve">
+    <value>Uruchamianie wdrożenia...</value>
+  </data>
+  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
+    <value>Ładowanie gałęzi i środowisk...</value>
+  </data>
+  <data name="LoadErrorTitle" xml:space="preserve">
+    <value>Błąd ładowania</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Nieoczekiwany błąd:
+{0}</value>
+  </data>
+  <data name="TimeoutTitle" xml:space="preserve">
+    <value>Przekroczono limit czasu</value>
+  </data>
+  <data name="DeployErrorTitle" xml:space="preserve">
+    <value>Błąd wdrożenia</value>
+  </data>
+  <data name="DeploySuccess" xml:space="preserve">
+    <value>Wdrożenie zakończone pomyślnie</value>
+  </data>
+  <data name="DeployCancelled" xml:space="preserve">
+    <value>Wdrożenie anulowane</value>
+  </data>
+  <data name="DeployFailed" xml:space="preserve">
+    <value>Wdrożenie nie powiodło się ({0})</value>
+  </data>
+  <data name="LogNotFound" xml:space="preserve">
+    <value>Plik logu jeszcze nie istnieje.
+Oczekiwany folder: {0}</value>
+  </data>
+  <data name="LogNotFoundTitle" xml:space="preserve">
+    <value>Log nie znaleziony</value>
+  </data>
+  <data name="MissingValuesMessage" xml:space="preserve">
+    <value>Wypełnij wszystkie wartości przed wdrożeniem.</value>
+  </data>
+  <data name="MissingValuesTitle" xml:space="preserve">
+    <value>Brakujące wartości</value>
+  </data>
+  <data name="PortUnavailable" xml:space="preserve">
+    <value>Port {0} jest niedostępny.
+Sprawdź połączenie urządzenia.</value>
+  </data>
+  <data name="PortUnavailableTitle" xml:space="preserve">
+    <value>Port niedostępny</value>
+  </data>
+
+  <!-- Form1.Designer.cs -->
+  <data name="LabelRepository" xml:space="preserve">
+    <value>Repozytorium</value>
+  </data>
+  <data name="LabelBranch" xml:space="preserve">
+    <value>Gałąź</value>
+  </data>
+  <data name="LabelEnvironment" xml:space="preserve">
+    <value>Środowisko</value>
+  </data>
+  <data name="ButtonDeploy" xml:space="preserve">
+    <value>Wdróż</value>
+  </data>
+  <data name="ButtonCancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="ButtonLog" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="LabelCom" xml:space="preserve">
+    <value>COM</value>
+  </data>
+  <data name="FormTitle" xml:space="preserve">
+    <value>IoT Deployer</value>
+  </data>
+</root>
