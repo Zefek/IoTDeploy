@@ -43,89 +43,88 @@
 
   <!-- Program.cs -->
   <data name="ConfigErrorTitle" xml:space="preserve">
-    <value>Chyba konfigurace</value>
+    <value>Configuration error</value>
   </data>
   <data name="InvalidConfigPrefix" xml:space="preserve">
-    <value>Neplatná konfigurace v appsettings.json:
+    <value>Invalid configuration in appsettings.json:
 
 • </value>
   </data>
   <data name="AppSettingsNotFound" xml:space="preserve">
-    <value>Nenalezen soubor appsettings.json.
-Umístěte ho do složky aplikace.</value>
+    <value>File appsettings.json not found.
+Place it in the application folder.</value>
   </data>
   <data name="AppSettingsInvalid" xml:space="preserve">
-    <value>Soubor appsettings.json je prázdný nebo neplatný.</value>
+    <value>File appsettings.json is empty or invalid.</value>
   </data>
 
   <!-- Form1.cs -->
   <data name="ConnectingToGitHub" xml:space="preserve">
-    <value>Připojuji se k GitHubu...</value>
+    <value>Connecting to GitHub...</value>
   </data>
   <data name="Ready" xml:space="preserve">
-    <value>Připraveno.</value>
+    <value>Ready.</value>
   </data>
   <data name="MissingKeyFileTitle" xml:space="preserve">
-    <value>Chybí soubor klíče</value>
+    <value>Missing key file</value>
   </data>
   <data name="AuthErrorTitle" xml:space="preserve">
-    <value>Chyba autentizace</value>
+    <value>Authentication error</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
-    <value>Chyba</value>
+    <value>Error</value>
   </data>
   <data name="UnexpectedInitError" xml:space="preserve">
-    <value>Neočekávaná chyba při inicializaci:
+    <value>Unexpected error during initialization:
 {0}</value>
   </data>
   <data name="StartingDeploy" xml:space="preserve">
-    <value>Spouštím deploy...</value>
+    <value>Starting deploy...</value>
   </data>
   <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Načítám větve a prostředí...</value>
+    <value>Loading branches and environments...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
-    <value>Chyba načítání</value>
+    <value>Loading error</value>
   </data>
   <data name="UnexpectedError" xml:space="preserve">
-    <value>Neočekávaná chyba:
+    <value>Unexpected error:
 {0}</value>
   </data>
   <data name="TimeoutTitle" xml:space="preserve">
     <value>Timeout</value>
   </data>
   <data name="DeployErrorTitle" xml:space="preserve">
-    <value>Chyba deploye</value>
+    <value>Deploy error</value>
   </data>
   <data name="DeploySuccess" xml:space="preserve">
-    <value>Deploy dokončen úspěšně</value>
+    <value>Deploy completed successfully</value>
   </data>
   <data name="DeployCancelled" xml:space="preserve">
-    <value>Deploy zrušen</value>
+    <value>Deploy cancelled</value>
   </data>
   <data name="DeployFailed" xml:space="preserve">
-    <value>Deploy selhal ({0})</value>
+    <value>Deploy failed ({0})</value>
   </data>
   <data name="LogNotFound" xml:space="preserve">
-    <value>Log soubor zatím neexistuje.
-Očekávaná složka: {0}</value>
+    <value>Log file does not exist yet.
+Expected folder: {0}</value>
   </data>
   <data name="LogNotFoundTitle" xml:space="preserve">
-    <value>Log nenalezen</value>
+    <value>Log not found</value>
   </data>
-
   <data name="MissingValuesMessage" xml:space="preserve">
-    <value>Vyplňte všechny hodnoty před deployem.</value>
+    <value>Fill in all values before deploying.</value>
   </data>
   <data name="MissingValuesTitle" xml:space="preserve">
-    <value>Chybí hodnoty</value>
+    <value>Missing values</value>
   </data>
   <data name="PortUnavailable" xml:space="preserve">
-    <value>Port {0} není dostupný.
-Ověřte připojení zařízení.</value>
+    <value>Port {0} is not available.
+Check the device connection.</value>
   </data>
   <data name="PortUnavailableTitle" xml:space="preserve">
-    <value>Port nedostupný</value>
+    <value>Port unavailable</value>
   </data>
 
   <!-- Form1.Designer.cs -->
@@ -142,7 +141,7 @@ Ověřte připojení zařízení.</value>
     <value>Deploy</value>
   </data>
   <data name="ButtonCancel" xml:space="preserve">
-    <value>Zrušit</value>
+    <value>Cancel</value>
   </data>
   <data name="ButtonLog" xml:space="preserve">
     <value>Log</value>

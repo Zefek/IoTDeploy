@@ -43,158 +43,158 @@
 
   <!-- Program.cs -->
   <data name="Usage" xml:space="preserve">
-    <value>IoTDeploy CLI – nasazení firmware přes GitHub Actions
+    <value>IoTDeploy CLI – firmware deployment via GitHub Actions
 
-Použití:
-  IoTDeploy.exe &lt;repozitář&gt; &lt;větev&gt; &lt;prostředí&gt; &lt;port&gt;
+Usage:
+  IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; &lt;environment&gt; &lt;port&gt;
 
-Příklad:
+Example:
   IoTDeploy.exe MyFirmware main production COM3
 
-Konfigurace:
-  appsettings.json a .pem soubor musí být ve stejné složce jako exe.</value>
+Configuration:
+  appsettings.json and .pem file must be in the same folder as the exe.</value>
   </data>
   <data name="ErrorExpected4Args" xml:space="preserve">
-    <value>Chyba: očekávány 4 argumenty.
+    <value>Error: 4 arguments expected.
 </value>
   </data>
   <data name="ErrorConfiguration" xml:space="preserve">
-    <value>Chyba konfigurace: {0}</value>
+    <value>Configuration error: {0}</value>
   </data>
   <data name="InvalidConfiguration" xml:space="preserve">
-    <value>Neplatná konfigurace v appsettings.json:</value>
+    <value>Invalid configuration in appsettings.json:</value>
   </data>
   <data name="ConnectingToGitHub" xml:space="preserve">
-    <value>Připojuji se k GitHubu...</value>
+    <value>Connecting to GitHub...</value>
   </data>
   <data name="DeployInfo" xml:space="preserve">
-    <value>Deploy: {0} / {1} → {2} na {3}</value>
+    <value>Deploy: {0} / {1} → {2} on {3}</value>
   </data>
   <data name="CancellingDeploy" xml:space="preserve">
-    <value>Rušení deploye (Ctrl+C)...</value>
+    <value>Cancelling deploy (Ctrl+C)...</value>
   </data>
   <data name="DeploySuccess" xml:space="preserve">
-    <value>Deploy dokončen úspěšně.</value>
+    <value>Deploy completed successfully.</value>
   </data>
   <data name="DeployFailed" xml:space="preserve">
-    <value>Deploy selhal: {0}</value>
+    <value>Deploy failed: {0}</value>
   </data>
   <data name="DeployUnknown" xml:space="preserve">
-    <value>Deploy dokončen (stav neznámý).</value>
+    <value>Deploy completed (status unknown).</value>
   </data>
   <data name="DeployCancelled" xml:space="preserve">
-    <value>Deploy zrušen.</value>
+    <value>Deploy cancelled.</value>
   </data>
   <data name="TimeoutError" xml:space="preserve">
     <value>Timeout: {0}</value>
   </data>
   <data name="DeployError" xml:space="preserve">
-    <value>Chyba deploye: {0}</value>
+    <value>Deploy error: {0}</value>
   </data>
   <data name="AppSettingsNotFound" xml:space="preserve">
-    <value>Nenalezen soubor appsettings.json.
-Umístěte ho do složky aplikace.</value>
+    <value>File appsettings.json not found.
+Place it in the application folder.</value>
   </data>
   <data name="AppSettingsInvalid" xml:space="preserve">
-    <value>Soubor appsettings.json je prázdný nebo neplatný.</value>
+    <value>File appsettings.json is empty or invalid.</value>
   </data>
 
   <!-- AppSettings.cs -->
   <data name="ValidateAppId" xml:space="preserve">
-    <value>GitHub.AppId není nastaveno</value>
+    <value>GitHub.AppId is not set</value>
   </data>
   <data name="ValidateInstallationId" xml:space="preserve">
-    <value>GitHub.InstallationId není nastaveno</value>
+    <value>GitHub.InstallationId is not set</value>
   </data>
   <data name="ValidateOwner" xml:space="preserve">
-    <value>GitHub.Owner není nastaveno</value>
+    <value>GitHub.Owner is not set</value>
   </data>
   <data name="ValidatePemFilePattern" xml:space="preserve">
-    <value>GitHub.PemFilePattern není nastaveno</value>
+    <value>GitHub.PemFilePattern is not set</value>
   </data>
   <data name="ValidateWorkflowTimeout" xml:space="preserve">
-    <value>Runner.WorkflowTimeoutMinutes musí být větší než 0</value>
+    <value>Runner.WorkflowTimeoutMinutes must be greater than 0</value>
   </data>
   <data name="ValidateLabels" xml:space="preserve">
-    <value>Runner.Labels nesmí být prázdné</value>
+    <value>Runner.Labels must not be empty</value>
   </data>
 
   <!-- GithubProvider.cs -->
   <data name="PemFileNotFound" xml:space="preserve">
-    <value>Nenalezen soubor privátního klíče GitHub App (pattern: '{0}').
-Umístěte soubor do složky aplikace nebo upravte PemFilePattern v appsettings.json.</value>
+    <value>GitHub App private key file not found (pattern: '{0}').
+Place the file in the application folder or update PemFilePattern in appsettings.json.</value>
   </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
-    <value>Nelze načíst privátní klíč:
+    <value>Cannot read private key:
 {0}
 {1}</value>
   </data>
   <data name="AuthFailed" xml:space="preserve">
-    <value>Autentizace GitHub App selhala.
-Ověřte, že privátní klíč odpovídá App ID a instalaci.</value>
+    <value>GitHub App authentication failed.
+Verify that the private key matches the App ID and installation.</value>
   </data>
   <data name="InstallationNotFound" xml:space="preserve">
-    <value>GitHub App instalace s ID {0} nebyla nalezena.
-Ověřte installationId v nastavení aplikace.</value>
+    <value>GitHub App installation with ID {0} was not found.
+Verify the installationId in the application settings.</value>
   </data>
   <data name="StartingWorkflow" xml:space="preserve">
-    <value>Spouštím workflow na GitHubu...</value>
+    <value>Starting workflow on GitHub...</value>
   </data>
   <data name="BranchNotFound" xml:space="preserve">
-    <value>Větev '{0}' nebyla nalezena v repozitáři '{1}'.</value>
+    <value>Branch '{0}' was not found in repository '{1}'.</value>
   </data>
   <data name="WaitingForApproval" xml:space="preserve">
-    <value>Čekám na schválení deploymentu na GitHubu...</value>
+    <value>Waiting for deployment approval on GitHub...</value>
   </data>
   <data name="RepositoryNotFound" xml:space="preserve">
-    <value>Repozitář '{0}' nebyl nalezen.</value>
+    <value>Repository '{0}' was not found.</value>
   </data>
   <data name="WaitingForWorkflow" xml:space="preserve">
-    <value>Čekám na schválení a spuštění workflow... ({0}s)</value>
+    <value>Waiting for workflow approval and start... ({0}s)</value>
   </data>
   <data name="WorkflowTimeout" xml:space="preserve">
-    <value>Workflow nebylo schváleno a spuštěno do {0} minut.
-Ověřte, že byl deployment schválen na GitHubu a runner je dostupný.</value>
+    <value>Workflow was not approved and started within {0} minutes.
+Verify that the deployment was approved on GitHub and the runner is available.</value>
   </data>
   <data name="RepositoryNotFoundOrNoActions" xml:space="preserve">
-    <value>Repozitář '{0}' nebyl nalezen nebo GitHub Actions není povolen.</value>
+    <value>Repository '{0}' was not found or GitHub Actions is not enabled.</value>
   </data>
 
   <!-- Runner.cs -->
   <data name="CheckingRunnerVersion" xml:space="preserve">
-    <value>Zjišťuji aktuální verzi runneru...</value>
+    <value>Checking current runner version...</value>
   </data>
   <data name="DownloadingRunner" xml:space="preserve">
-    <value>Stahuji runner {0}...</value>
+    <value>Downloading runner {0}...</value>
   </data>
   <data name="RunnerAlreadyDownloaded" xml:space="preserve">
-    <value>Runner {0} již je stažen.</value>
+    <value>Runner {0} is already downloaded.</value>
   </data>
   <data name="ExtractingRunner" xml:space="preserve">
-    <value>Rozbaluji runner...</value>
+    <value>Extracting runner...</value>
   </data>
   <data name="ConfiguringRunner" xml:space="preserve">
-    <value>Konfiguruji runner...</value>
+    <value>Configuring runner...</value>
   </data>
   <data name="RunnerConfigFailed" xml:space="preserve">
-    <value>Konfigurace runneru selhala</value>
+    <value>Runner configuration failed</value>
   </data>
   <data name="CheckingArduinoVersion" xml:space="preserve">
-    <value>Zjišťuji aktuální verzi Arduino CLI...</value>
+    <value>Checking current Arduino CLI version...</value>
   </data>
   <data name="DownloadingArduino" xml:space="preserve">
-    <value>Stahuji Arduino CLI {0}...</value>
+    <value>Downloading Arduino CLI {0}...</value>
   </data>
   <data name="ArduinoAlreadyDownloaded" xml:space="preserve">
-    <value>Arduino CLI {0} již je staženo.</value>
+    <value>Arduino CLI {0} is already downloaded.</value>
   </data>
   <data name="ExtractingArduino" xml:space="preserve">
-    <value>Rozbaluji Arduino CLI...</value>
+    <value>Extracting Arduino CLI...</value>
   </data>
   <data name="RunnerRunning" xml:space="preserve">
-    <value>Runner běží, nahrávám firmware...</value>
+    <value>Runner is running, uploading firmware...</value>
   </data>
   <data name="RunnerFailed" xml:space="preserve">
-    <value>Runner skončil s chybou</value>
+    <value>Runner finished with an error</value>
   </data>
 </root>
