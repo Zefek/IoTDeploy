@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Private keys - NEVER commit
+*.pem
+*.key
+*.pfx
+*.p12
+IoTDeploy/appsettings.json

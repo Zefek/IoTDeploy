@@ -1,0 +1,255 @@
+using Microsoft.IdentityModel.Tokens;
+using Octokit;
+using Octokit.Models.Response;
+using Serilog;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+
+namespace IoTDeploy;
+
+public record WorkflowProgress(
+    int CompletedSteps,
+    int TotalSteps,
+    string CurrentStepName,
+    string JobName,
+    bool IsCompleted,
+    string? Conclusion);
+
+public class GithubProvider
+{
+    private static readonly ILogger Logger = Log.ForContext<GithubProvider>();
+
+    private GitHubClient gitHubClient;
+    private string _appId;
+    private long _installationId;
+    private string _owner;
+    private int _workflowTimeoutMinutes;
+    private string _pemKeyPath;
+    private AccessToken? _installationAccessToken;
+
+    public GithubProvider()
+    {
+    }
+
+    public async Task Init(AppSettings settings)
+    {
+        _appId = settings.GitHub.AppId;
+        _installationId = settings.GitHub.InstallationId;
+        _owner = settings.GitHub.Owner;
+        _workflowTimeoutMinutes = settings.Runner.WorkflowTimeoutMinutes;
+        _pemKeyPath = FindPemFile(settings.GitHub.PemFilePattern);
+        Logger.Information("Inicializuji GitHub App klienta (AppId={AppId}, Owner={Owner})", _appId, _owner);
+        gitHubClient = await CreateInstallationClient();
+        Logger.Information("GitHub klient úspěšně inicializován");
+    }
+
+    private static string FindPemFile(string pattern)
+    {
+        var matches = Directory.GetFiles(AppContext.BaseDirectory, pattern);
+        if (matches.Length == 0)
+            throw new FileNotFoundException(
+                $"Nenalezen soubor privátního klíče GitHub App (pattern: '{pattern}').\n" +
+                "Umístěte soubor do složky aplikace nebo upravte PemFilePattern v appsettings.json.");
+        return matches[0];
+    }
+
+    private async Task<GitHubClient> CreateInstallationClient()
+    {
+        string pemContent;
+        try
+        {
+            pemContent = File.ReadAllText(_pemKeyPath);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Nelze načíst privátní klíč:\n{_pemKeyPath}\n{ex.Message}", ex);
+        }
+
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(pemContent);
+            var jwt = GenerateJwt(_appId, rsa);
+
+            var jwtClient = new GitHubClient(new ProductHeaderValue("IoTDeploy"))
+            {
+                Credentials = new Credentials(jwt, AuthenticationType.Bearer)
+            };
+
+            _installationAccessToken = await jwtClient.GitHubApps.CreateInstallationToken(_installationId);
+        }
+        catch (AuthorizationException)
+        {
+            throw new InvalidOperationException(
+                "Autentizace GitHub App selhala.\n" +
+                "Ověřte, že privátní klíč odpovídá App ID a instalaci.");
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException(
+                $"GitHub App instalace s ID {_installationId} nebyla nalezena.\n" +
+                "Ověřte installationId v nastavení aplikace.");
+        }
+
+        return new GitHubClient(new ProductHeaderValue("IoTDeploy"))
+        {
+            Credentials = new Credentials(_installationAccessToken.Token)
+        };
+    }
+
+    private string GenerateJwt(string appId, RSA rsaKey)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Issuer = appId,
+            IssuedAt = now.AddSeconds(-30).UtcDateTime,
+            Expires = now.AddMinutes(10).UtcDateTime,
+            SigningCredentials = new SigningCredentials(
+                new RsaSecurityKey(rsaKey),
+                SecurityAlgorithms.RsaSha256)
+        };
+
+        var handler = new JwtSecurityTokenHandler();
+        handler.OutboundClaimTypeMap.Clear();
+        return handler.WriteToken(handler.CreateToken(tokenDescriptor));
+    }
+
+    private async Task EnsureValidTokenAsync()
+    {
+        if (_installationAccessToken == null ||
+            DateTimeOffset.UtcNow >= _installationAccessToken.ExpiresAt.AddMinutes(-5))
+        {
+            Logger.Debug("Obnovuji installation access token (vyprší {ExpiresAt})", _installationAccessToken?.ExpiresAt);
+            gitHubClient = await CreateInstallationClient();
+            Logger.Debug("Token obnoven, platí do {ExpiresAt}", _installationAccessToken?.ExpiresAt);
+        }
+    }
+
+    public async Task<IReadOnlyList<Repository>> GetRepositories()
+    {
+        await EnsureValidTokenAsync();
+        var result = await gitHubClient.GitHubApps.Installation.GetAllRepositoriesForCurrent();
+        return result.Repositories;
+    }
+
+    public async Task<IReadOnlyList<Branch>> GetBranches(string repository)
+    {
+        await EnsureValidTokenAsync();
+        try
+        {
+            return await gitHubClient.Repository.Branch.GetAll(_owner, repository);
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException($"Repozitář '{repository}' nebyl nalezen.");
+        }
+    }
+
+    public async Task<IReadOnlyList<DeploymentEnvironment>> GetEnvironments(string repository)
+    {
+        await EnsureValidTokenAsync();
+        return (await gitHubClient.Repository.Environment.GetAll(_owner, repository)).Environments;
+    }
+
+    public async Task<(Deployment deployment, long workflowRunId)> RunWorkflow(string repository, string branchName, string environment, Dictionary<string, string> parameters, IProgress<string> progress, CancellationToken ct = default)
+    {
+        await EnsureValidTokenAsync();
+
+        progress.Report("Spouštím workflow na GitHubu...");
+        var createdAt = DateTimeOffset.UtcNow;
+        Deployment deployment;
+        try
+        {
+            deployment = await gitHubClient.Repository.Deployment.Create(_owner, repository, new NewDeployment(branchName)
+            {
+                Payload = parameters,
+                Environment = environment,
+                AutoMerge = false,
+                RequiredContexts = new System.Collections.ObjectModel.Collection<string>()
+            });
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException($"Větev '{branchName}' nebyla nalezena v repozitáři '{repository}'.");
+        }
+
+        Logger.Information("Deployment vytvořen (Id={DeploymentId}, repo={Repo}, branch={Branch}, env={Env})",
+            deployment.Id, repository, branchName, environment);
+
+        progress.Report("Čekám na schválení deploymentu na GitHubu...");
+        var run = await WaitForQueuedRunAsync(repository, createdAt, progress, ct);
+
+        Logger.Information("Workflow run spuštěn (RunId={RunId})", run.Id);
+        return (deployment, run.Id);
+    }
+
+    private async Task<WorkflowRun> WaitForQueuedRunAsync(string repository, DateTimeOffset createdAfter, IProgress<string> progress, CancellationToken ct = default)
+    {
+        var deadline = DateTimeOffset.UtcNow.AddMinutes(_workflowTimeoutMinutes);
+        var attempt = 0;
+        Logger.Debug("Čekám na workflow run v repo={Repo} (timeout={Timeout}min)", repository, _workflowTimeoutMinutes);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            await Task.Delay(3000, ct);
+            attempt++;
+            progress.Report($"Čekám na schválení a spuštění workflow... ({attempt * 3}s)");
+            var runs = await gitHubClient.Actions.Workflows.Runs.List(
+                _owner, repository,
+                new WorkflowRunsRequest { Status = new StringEnum<CheckRunStatusFilter>(CheckRunStatusFilter.Queued) });
+
+            var run = runs.WorkflowRuns.FirstOrDefault(r => r.CreatedAt >= createdAfter);
+            if (run != null) return run;
+        }
+        Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, timeout={Timeout}min)", repository, _workflowTimeoutMinutes);
+        throw new TimeoutException(
+            $"Workflow nebylo schváleno a spuštěno do {_workflowTimeoutMinutes} minut.\n" +
+            "Ověřte, že byl deployment schválen na GitHubu a runner je dostupný.");
+    }
+
+    public async Task<AccessToken> GetTokenForRunner(string repository)
+    {
+        await EnsureValidTokenAsync();
+        try
+        {
+            return await gitHubClient.Actions.SelfHostedRunners.CreateRepositoryRegistrationToken(_owner, repository);
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException($"Repozitář '{repository}' nebyl nalezen nebo GitHub Actions není povolen.");
+        }
+    }
+
+    public async Task<WorkflowProgress?> GetWorkflowProgressAsync(string repository, long runId)
+    {
+        await EnsureValidTokenAsync();
+        var run = await gitHubClient.Actions.Workflows.Runs.Get(_owner, repository, runId);
+        var isCompleted = run.Status.StringValue == "completed";
+        var conclusion = isCompleted ? (run.Conclusion?.StringValue ?? "unknown") : null;
+
+        try
+        {
+            var jobs = await gitHubClient.Actions.Workflows.Jobs.List(_owner, repository, runId);
+            var job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "in_progress")
+                ?? jobs.Jobs.LastOrDefault();
+
+            if (job?.Steps != null && job.Steps.Count > 0)
+            {
+                var total = job.Steps.Count;
+                var completed = job.Steps.Count(s => !string.IsNullOrEmpty(s.Conclusion?.StringValue));
+                var current = job.Steps.FirstOrDefault(s => s.Status.StringValue == "in_progress");
+                var stepName = current?.Name
+                    ?? job.Steps.LastOrDefault(s => !string.IsNullOrEmpty(s.Conclusion?.StringValue))?.Name
+                    ?? "";
+                return new WorkflowProgress(completed, total, stepName, job.Name ?? "", isCompleted, conclusion);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Nepodařilo se načíst kroky workflow run {RunId}", runId);
+        }
+
+        return isCompleted ? new WorkflowProgress(0, 0, "", "", true, conclusion) : null;
+    }
+}
