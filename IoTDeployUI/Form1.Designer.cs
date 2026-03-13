@@ -60,7 +60,7 @@ partial class Form1
         label1.Name = "label1";
         label1.Size = new Size(97, 25);
         label1.TabIndex = 1;
-        label1.Text = "Repository";
+        label1.Text = Strings.LabelRepository;
         label1.Click += label1_Click;
         //
         // label2
@@ -70,7 +70,7 @@ partial class Form1
         label2.Name = "label2";
         label2.Size = new Size(65, 25);
         label2.TabIndex = 3;
-        label2.Text = "Branch";
+        label2.Text = Strings.LabelBranch;
         //
         // cmbBranch
         //
@@ -87,7 +87,7 @@ partial class Form1
         label3.Name = "label3";
         label3.Size = new Size(112, 25);
         label3.TabIndex = 5;
-        label3.Text = "Environment";
+        label3.Text = Strings.LabelEnvironment;
         //
         // cmbEnvironment
         //
@@ -103,7 +103,7 @@ partial class Form1
         btnDeploy.Name = "btnDeploy";
         btnDeploy.Size = new Size(225, 34);
         btnDeploy.TabIndex = 6;
-        btnDeploy.Text = "Deploy";
+        btnDeploy.Text = Strings.ButtonDeploy;
         btnDeploy.UseVisualStyleBackColor = true;
         btnDeploy.Click += btnDeploy_Click;
         //
@@ -113,7 +113,7 @@ partial class Form1
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(100, 34);
         btnCancel.TabIndex = 12;
-        btnCancel.Text = "Zrušit";
+        btnCancel.Text = Strings.ButtonCancel;
         btnCancel.UseVisualStyleBackColor = true;
         btnCancel.Visible = false;
         btnCancel.Click += btnCancel_Click;
@@ -124,7 +124,7 @@ partial class Form1
         btnOpenLog.Name = "btnOpenLog";
         btnOpenLog.Size = new Size(72, 34);
         btnOpenLog.TabIndex = 11;
-        btnOpenLog.Text = "Log";
+        btnOpenLog.Text = Strings.ButtonLog;
         btnOpenLog.UseVisualStyleBackColor = true;
         btnOpenLog.Click += btnOpenLog_Click;
         //
@@ -135,7 +135,7 @@ partial class Form1
         label4.Name = "label4";
         label4.Size = new Size(53, 25);
         label4.TabIndex = 8;
-        label4.Text = "COM";
+        label4.Text = Strings.LabelCom;
         //
         // cmbPort
         //
@@ -195,7 +195,7 @@ partial class Form1
         Controls.Add(label1);
         Controls.Add(cmbRepository);
         Name = "Form1";
-        Text = "IoT Deployer";
+        Text = Strings.FormTitle;
         Load += Form1_Load;
         ResumeLayout(false);
         PerformLayout();

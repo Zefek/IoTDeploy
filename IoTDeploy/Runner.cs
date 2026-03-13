@@ -17,7 +17,7 @@ public class Runner
         using var http = new HttpClient();
         http.DefaultRequestHeaders.UserAgent.ParseAdd("IoTDeploy");
 
-        progress.Report("Zjišťuji aktuální verzi runneru...");
+        progress.Report(Strings.CheckingRunnerVersion);
         var json = await WithRetryAsync(() => http.GetStringAsync("https://api.github.com/repos/actions/runner/releases/latest", ct), ct);
         using var doc = JsonDocument.Parse(json);
         var tag = doc.RootElement.GetProperty("tag_name").GetString()!;
@@ -28,7 +28,7 @@ public class Runner
 
         if (!File.Exists(zipPath))
         {
-            progress.Report($"Stahuji runner {version}...");
+            progress.Report(string.Format(Strings.DownloadingRunner, version));
             Logger.Information("Stahuji runner {Version}", version);
             var url = $"https://github.com/actions/runner/releases/download/{tag}/{zipName}";
             using var stream = await WithRetryAsync(() => http.GetStreamAsync(url, ct), ct);
@@ -44,11 +44,11 @@ public class Runner
         else
         {
             Logger.Debug("Runner {Version} již je stažen, přeskakuji stahování", version);
-            progress.Report($"Runner {version} již je stažen.");
+            progress.Report(string.Format(Strings.RunnerAlreadyDownloaded, version));
         }
 
         Logger.Debug("Rozbaluji runner do {ExtractPath}", Path.Combine(runnersDir, "runner1"));
-        progress.Report("Rozbaluji runner...");
+        progress.Report(Strings.ExtractingRunner);
         var extractPath = Path.Combine(runnersDir, "runner1");
         if (Directory.Exists(extractPath))
             DeleteDirectory(extractPath);
@@ -58,14 +58,14 @@ public class Runner
 
     public async Task Config(string owner, string repository, string token, string[] labels, IProgress<string> progress, CancellationToken ct = default)
     {
-        progress.Report("Konfiguruji runner...");
+        progress.Report(Strings.ConfiguringRunner);
         var guid = Guid.NewGuid();
         var path = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "config.cmd");
         var labelList = string.Join(",", labels);
         var args = $"--url https://github.com/{owner}/{repository} --name {guid} --labels {labelList} --ephemeral --unattended";
         var workDir = Path.Combine(AppContext.BaseDirectory, "runners", "runner1");
         var envVars = new Dictionary<string, string> { ["ACTIONS_RUNNER_INPUT_TOKEN"] = token };
-        await RunProcessAsync(path, args, workDir, progress, "Konfigurace runneru selhala", ct, envVars);
+        await RunProcessAsync(path, args, workDir, progress, Strings.RunnerConfigFailed, ct, envVars);
     }
 
     public async Task DownloadTools(IProgress<string> progress, CancellationToken ct = default)
@@ -75,7 +75,7 @@ public class Runner
         using var http = new HttpClient();
         http.DefaultRequestHeaders.UserAgent.ParseAdd("IoTDeploy");
 
-        progress.Report("Zjišťuji aktuální verzi Arduino CLI...");
+        progress.Report(Strings.CheckingArduinoVersion);
         var json = await WithRetryAsync(() => http.GetStringAsync("https://api.github.com/repos/arduino/arduino-cli/releases/latest", ct), ct);
         using var doc = JsonDocument.Parse(json);
         var tag = doc.RootElement.GetProperty("tag_name").GetString()!;
@@ -86,7 +86,7 @@ public class Runner
 
         if (!File.Exists(zipPath))
         {
-            progress.Report($"Stahuji Arduino CLI {version}...");
+            progress.Report(string.Format(Strings.DownloadingArduino, version));
             var assets = doc.RootElement.GetProperty("assets");
             var asset = assets.EnumerateArray().First(a => a.GetProperty("name").GetString() == zipName);
             var url = asset.GetProperty("browser_download_url").GetString()!;
@@ -103,10 +103,10 @@ public class Runner
         }
         else
         {
-            progress.Report($"Arduino CLI {version} již je staženo.");
+            progress.Report(string.Format(Strings.ArduinoAlreadyDownloaded, version));
         }
 
-        progress.Report("Rozbaluji Arduino CLI...");
+        progress.Report(Strings.ExtractingArduino);
         var extractPath = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "_work", "_tool", "arduino-cli");
         if (Directory.Exists(extractPath))
             DeleteDirectory(extractPath);
@@ -130,10 +130,10 @@ public class Runner
 
     public async Task Run(IProgress<string> progress, CancellationToken ct = default)
     {
-        progress.Report("Runner běží, nahrávám firmware...");
+        progress.Report(Strings.RunnerRunning);
         var path = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "run.cmd");
         var workDir = Path.Combine(AppContext.BaseDirectory, "runners", "runner1");
-        await RunProcessAsync(path, "", workDir, progress, "Runner skončil s chybou", ct);
+        await RunProcessAsync(path, "", workDir, progress, Strings.RunnerFailed, ct);
     }
 
     private static async Task RunProcessAsync(string fileName, string arguments, string workingDir, IProgress<string> progress, string errorPrefix, CancellationToken ct = default, Dictionary<string, string>? envVars = null)

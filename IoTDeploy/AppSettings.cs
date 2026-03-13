@@ -8,17 +8,17 @@ public class AppSettings
     public IEnumerable<string> Validate()
     {
         if (string.IsNullOrWhiteSpace(GitHub.AppId))
-            yield return "GitHub.AppId není nastaveno";
+            yield return Strings.ValidateAppId;
         if (GitHub.InstallationId == 0)
-            yield return "GitHub.InstallationId není nastaveno";
+            yield return Strings.ValidateInstallationId;
         if (string.IsNullOrWhiteSpace(GitHub.Owner))
-            yield return "GitHub.Owner není nastaveno";
+            yield return Strings.ValidateOwner;
         if (string.IsNullOrWhiteSpace(GitHub.PemFilePattern))
-            yield return "GitHub.PemFilePattern není nastaveno";
+            yield return Strings.ValidatePemFilePattern;
         if (Runner.WorkflowTimeoutMinutes <= 0)
-            yield return "Runner.WorkflowTimeoutMinutes musí být větší než 0";
+            yield return Strings.ValidateWorkflowTimeout;
         if (Runner.Labels.Length == 0)
-            yield return "Runner.Labels nesmí být prázdné";
+            yield return Strings.ValidateLabels;
     }
 }
 

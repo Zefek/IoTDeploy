@@ -28,7 +28,7 @@ public partial class Form1 : Form
 
     private async void Form1_Load(object sender, EventArgs e)
     {
-        SetUiBusy("Připojuji se k GitHubu...");
+        SetUiBusy(Strings.ConnectingToGitHub);
         try
         {
             await githubProvider.Init(settings);
@@ -40,50 +40,50 @@ public partial class Form1 : Form
             cmbBranch.Items.Clear();
             cmbEnvironment.Items.Clear();
             RefreshComPorts();
-            SetUiIdle("Připraveno.");
+            SetUiIdle(Strings.Ready);
         }
         catch (FileNotFoundException ex)
         {
             Logger.Error(ex, "Chybí soubor privátního klíče");
             SetUiIdle("");
-            MessageBox.Show(ex.Message, "Chybí soubor klíče", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, Strings.MissingKeyFileTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (InvalidOperationException ex)
         {
             Logger.Error(ex, "Chyba autentizace při inicializaci");
             SetUiIdle("");
-            MessageBox.Show(ex.Message, "Chyba autentizace", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, Strings.AuthErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Neočekávaná chyba při inicializaci");
             SetUiIdle("");
-            MessageBox.Show($"Neočekávaná chyba při inicializaci:\n{ex.Message}", "Chyba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(string.Format(Strings.UnexpectedInitError, ex.Message), Strings.ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
     private async void btnDeploy_Click(object sender, EventArgs e)
     {
         RefreshComPorts();
-        /*
+
         if (cmbRepository.SelectedItem is null || cmbBranch.SelectedItem is null ||
             cmbEnvironment.SelectedItem is null || cmbPort.SelectedItem is null)
         {
-            MessageBox.Show("Vyplňte všechny hodnoty před deployem.", "Chybí hodnoty", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(Strings.MissingValuesMessage, Strings.MissingValuesTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
-        */
+
         var repositoryName = cmbRepository.SelectedItem.ToString()!;
         var branchName = cmbBranch.SelectedItem.ToString()!;
         var environmentName = cmbEnvironment.SelectedItem.ToString()!;
-        var comportName = "COM3";// cmbPort.SelectedItem.ToString()!;
-        /*
+        var comportName = cmbPort.SelectedItem.ToString()!;
+
         if (!SerialPort.GetPortNames().Contains(comportName))
         {
-            MessageBox.Show($"Port {comportName} není dostupný.\nOvěřte připojení zařízení.", "Port nedostupný", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(string.Format(Strings.PortUnavailable, comportName), Strings.PortUnavailableTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
-        */
+
         Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, env={Env}, port={Port}",
             repositoryName, branchName, environmentName, comportName);
 
@@ -93,7 +93,7 @@ public partial class Form1 : Form
         var ct = _cts.Token;
         var runner = new IoTDeploy.Runner();
 
-        SetUiBusy("Spouštím deploy...");
+        SetUiBusy(Strings.StartingDeploy);
         lblResult.Visible = false;
         try
         {
@@ -131,19 +131,19 @@ public partial class Form1 : Form
         {
             Logger.Warning(ex, "Timeout při deployi");
             ShowDeployResult("failure");
-            MessageBox.Show(ex.Message, "Timeout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(ex.Message, Strings.TimeoutTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         catch (InvalidOperationException ex)
         {
             Logger.Error(ex, "Chyba deploye");
             ShowDeployResult("failure");
-            MessageBox.Show(ex.Message, "Chyba deploye", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, Strings.DeployErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Neočekávaná chyba při deployi");
             ShowDeployResult("failure");
-            MessageBox.Show($"Neočekávaná chyba:\n{ex.Message}", "Chyba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(string.Format(Strings.UnexpectedError, ex.Message), Strings.ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -159,7 +159,7 @@ public partial class Form1 : Form
         var repositoryName = cmbRepository.SelectedItem?.ToString();
         if (repositoryName is null) return;
 
-        SetUiBusy("Načítám větve a prostředí...");
+        SetUiBusy(Strings.LoadingBranchesAndEnvs);
         try
         {
             cmbBranch.Items.Clear();
@@ -173,19 +173,19 @@ public partial class Form1 : Form
             {
                 cmbEnvironment.Items.Add(env.Name);
             }
-            SetUiIdle("Připraveno.");
+            SetUiIdle(Strings.Ready);
         }
         catch (InvalidOperationException ex)
         {
             Logger.Error(ex, "Chyba při načítání větví/prostředí pro repo={Repo}", repositoryName);
             SetUiIdle("");
-            MessageBox.Show(ex.Message, "Chyba načítání", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, Strings.LoadErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Neočekávaná chyba při načítání repo={Repo}", repositoryName);
             SetUiIdle("");
-            MessageBox.Show($"Neočekávaná chyba:\n{ex.Message}", "Chyba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(string.Format(Strings.UnexpectedError, ex.Message), Strings.ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -207,8 +207,8 @@ public partial class Form1 : Form
 
         if (todayLog == null || !File.Exists(todayLog))
         {
-            MessageBox.Show($"Log soubor zatím neexistuje.\nOčekávaná složka: {logDir}",
-                "Log nenalezen", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(string.Format(Strings.LogNotFound, logDir),
+                Strings.LogNotFoundTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -285,15 +285,15 @@ public partial class Form1 : Form
         switch (conclusion)
         {
             case "success":
-                lblResult.Text = "Deploy dokončen úspěšně";
+                lblResult.Text = Strings.DeploySuccess;
                 lblResult.ForeColor = Color.Green;
                 break;
             case "cancelled":
-                lblResult.Text = "Deploy zrušen";
+                lblResult.Text = Strings.DeployCancelled;
                 lblResult.ForeColor = Color.Orange;
                 break;
             default:
-                lblResult.Text = $"Deploy selhal ({conclusion})";
+                lblResult.Text = string.Format(Strings.DeployFailed, conclusion);
                 lblResult.ForeColor = Color.Red;
                 break;
         }

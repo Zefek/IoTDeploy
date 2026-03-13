@@ -18,7 +18,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Chyba konfigurace", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, Strings.ConfigErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -26,8 +26,8 @@ internal static class Program
         if (errors.Count > 0)
         {
             MessageBox.Show(
-                "Neplatná konfigurace v appsettings.json:\n\n• " + string.Join("\n• ", errors),
-                "Chyba konfigurace", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Strings.InvalidConfigPrefix + string.Join("\n• ", errors),
+                Strings.ConfigErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -54,14 +54,12 @@ internal static class Program
     {
         var path = Path.Combine(Application.StartupPath, "appsettings.json");
         if (!File.Exists(path))
-            throw new FileNotFoundException(
-                "Nenalezen soubor appsettings.json.\n" +
-                "Umístěte ho do složky aplikace.", path);
+            throw new FileNotFoundException(Strings.AppSettingsNotFound, path);
 
         var json = File.ReadAllText(path);
         return JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
-        }) ?? throw new InvalidOperationException("Soubor appsettings.json je prázdný nebo neplatný.");
+        }) ?? throw new InvalidOperationException(Strings.AppSettingsInvalid);
     }
 }

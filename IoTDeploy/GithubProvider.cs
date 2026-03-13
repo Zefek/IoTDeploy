@@ -47,9 +47,7 @@ public class GithubProvider
     {
         var matches = Directory.GetFiles(AppContext.BaseDirectory, pattern);
         if (matches.Length == 0)
-            throw new FileNotFoundException(
-                $"Nenalezen soubor privátního klíče GitHub App (pattern: '{pattern}').\n" +
-                "Umístěte soubor do složky aplikace nebo upravte PemFilePattern v appsettings.json.");
+            throw new FileNotFoundException(string.Format(Strings.PemFileNotFound, pattern));
         return matches[0];
     }
 
@@ -62,7 +60,7 @@ public class GithubProvider
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Nelze načíst privátní klíč:\n{_pemKeyPath}\n{ex.Message}", ex);
+            throw new InvalidOperationException(string.Format(Strings.CannotReadPrivateKey, _pemKeyPath, ex.Message), ex);
         }
 
         try
@@ -80,15 +78,11 @@ public class GithubProvider
         }
         catch (AuthorizationException)
         {
-            throw new InvalidOperationException(
-                "Autentizace GitHub App selhala.\n" +
-                "Ověřte, že privátní klíč odpovídá App ID a instalaci.");
+            throw new InvalidOperationException(Strings.AuthFailed);
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException(
-                $"GitHub App instalace s ID {_installationId} nebyla nalezena.\n" +
-                "Ověřte installationId v nastavení aplikace.");
+            throw new InvalidOperationException(string.Format(Strings.InstallationNotFound, _installationId));
         }
 
         return new GitHubClient(new ProductHeaderValue("IoTDeploy"))
@@ -143,7 +137,7 @@ public class GithubProvider
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException($"Repozitář '{repository}' nebyl nalezen.");
+            throw new InvalidOperationException(string.Format(Strings.RepositoryNotFound, repository));
         }
     }
 
@@ -157,7 +151,7 @@ public class GithubProvider
     {
         await EnsureValidTokenAsync();
 
-        progress.Report("Spouštím workflow na GitHubu...");
+        progress.Report(Strings.StartingWorkflow);
         var createdAt = DateTimeOffset.UtcNow;
         Deployment deployment;
         try
@@ -172,13 +166,13 @@ public class GithubProvider
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException($"Větev '{branchName}' nebyla nalezena v repozitáři '{repository}'.");
+            throw new InvalidOperationException(string.Format(Strings.BranchNotFound, branchName, repository));
         }
 
         Logger.Information("Deployment vytvořen (Id={DeploymentId}, repo={Repo}, branch={Branch}, env={Env})",
             deployment.Id, repository, branchName, environment);
 
-        progress.Report("Čekám na schválení deploymentu na GitHubu...");
+        progress.Report(Strings.WaitingForApproval);
         var run = await WaitForQueuedRunAsync(repository, createdAt, progress, ct);
 
         Logger.Information("Workflow run spuštěn (RunId={RunId})", run.Id);
@@ -194,7 +188,7 @@ public class GithubProvider
         {
             await Task.Delay(3000, ct);
             attempt++;
-            progress.Report($"Čekám na schválení a spuštění workflow... ({attempt * 3}s)");
+            progress.Report(string.Format(Strings.WaitingForWorkflow, attempt * 3));
             var runs = await gitHubClient.Actions.Workflows.Runs.List(
                 _owner, repository,
                 new WorkflowRunsRequest { Status = new StringEnum<CheckRunStatusFilter>(CheckRunStatusFilter.Queued) });
@@ -203,9 +197,7 @@ public class GithubProvider
             if (run != null) return run;
         }
         Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, timeout={Timeout}min)", repository, _workflowTimeoutMinutes);
-        throw new TimeoutException(
-            $"Workflow nebylo schváleno a spuštěno do {_workflowTimeoutMinutes} minut.\n" +
-            "Ověřte, že byl deployment schválen na GitHubu a runner je dostupný.");
+        throw new TimeoutException(string.Format(Strings.WorkflowTimeout, _workflowTimeoutMinutes));
     }
 
     public async Task<AccessToken> GetTokenForRunner(string repository)
@@ -217,7 +209,7 @@ public class GithubProvider
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException($"Repozitář '{repository}' nebyl nalezen nebo GitHub Actions není povolen.");
+            throw new InvalidOperationException(string.Format(Strings.RepositoryNotFoundOrNoActions, repository));
         }
     }
 
