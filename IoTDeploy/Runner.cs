@@ -108,20 +108,23 @@ public class Runner
 
         progress.Report(Strings.ExtractingArduino);
         var extractPath = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "_work", "_tool", "arduino-cli");
+        var arduinoCachePath = Path.Combine(AppContext.BaseDirectory, "arduino_cache");
         if (Directory.Exists(extractPath))
             DeleteDirectory(extractPath);
         Directory.CreateDirectory(extractPath);
         ZipFile.ExtractToDirectory(zipPath, extractPath);
+        if(!Directory.Exists(arduinoCachePath))
+            Directory.CreateDirectory(arduinoCachePath);
 
         var configContent =
             $"""
             directories:
-              data: '{extractPath}\\data'
-              downloads: '{extractPath}\\downloads'
-              libraries: '{extractPath}\\libraries'
+              data: '{arduinoCachePath}\\data'
+              downloads: '{arduinoCachePath}\\downloads'
+              libraries: '{arduinoCachePath}\\libraries'
               user: '{extractPath}\\user'
               builtin:
-                libraries: '{extractPath}\\builtin.libraries'
+                libraries: '{arduinoCachePath}\\builtin.libraries'
             library:
               enable_unsafe_install: true
             """;
