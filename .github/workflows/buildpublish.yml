@@ -1,0 +1,37 @@
+name: .NET Build and Publish
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout kódu
+      uses: actions/checkout@v4
+
+    - name: Nastavení .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' 
+
+    - name: Obnova závislostí (Restore)
+      run: dotnet restore
+
+    - name: Build řešení (SLN)
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Publish aplikace
+      # --output určuje, kam se soubory vygenerují před nahráním do artifactů
+      run: dotnet publish --configuration Release --no-build --output ./publish_output
+
+    - name: Nahrání do Artifactů
+      uses: actions/upload-artifact@v4
+      with:
+        name: IoTDeployer # Název balíčku, který uvidíš v GitHubu
+        path: ./publish_output # Cesta ke složce, kterou jsme definovali v kroku 'Publish'
+        if-no-files-found: error
