@@ -83,5 +83,14 @@ internal class Strings
     internal static string ButtonCancel => ResourceManager.GetString("ButtonCancel", resourceCulture)!;
     internal static string ButtonLog => ResourceManager.GetString("ButtonLog", resourceCulture)!;
     internal static string LabelCom => ResourceManager.GetString("LabelCom", resourceCulture)!;
+    internal static string LabelUseArtifact => ResourceManager.GetString("LabelUseArtifact", resourceCulture)!;
     internal static string FormTitle => ResourceManager.GetString("FormTitle", resourceCulture)!;
+
+    // Artifact selector
+    internal static string LoadingArtifacts => ResourceManager.GetString("LoadingArtifacts", resourceCulture)!;
+    internal static string NoArtifactsAvailable => ResourceManager.GetString("NoArtifactsAvailable", resourceCulture)!;
+    internal static string ArtifactsLoadFailed => ResourceManager.GetString("ArtifactsLoadFailed", resourceCulture)!;
+    internal static string ArtifactItemLatest => ResourceManager.GetString("ArtifactItemLatest", resourceCulture)!;
+    internal static string ArtifactItem => ResourceManager.GetString("ArtifactItem", resourceCulture)!;
+    internal static string MissingArtifactSelection => ResourceManager.GetString("MissingArtifactSelection", resourceCulture)!;
 }

@@ -149,7 +149,28 @@ Check the device connection.</value>
   <data name="LabelCom" xml:space="preserve">
     <value>COM</value>
   </data>
+  <data name="LabelUseArtifact" xml:space="preserve">
+    <value>Use artifact</value>
+  </data>
   <data name="FormTitle" xml:space="preserve">
     <value>IoT Deployer</value>
+  </data>
+  <data name="LoadingArtifacts" xml:space="preserve">
+    <value>Loading artifacts...</value>
+  </data>
+  <data name="NoArtifactsAvailable" xml:space="preserve">
+    <value>(no artifacts found)</value>
+  </data>
+  <data name="ArtifactsLoadFailed" xml:space="preserve">
+    <value>(load failed: {0})</value>
+  </data>
+  <data name="ArtifactItemLatest" xml:space="preserve">
+    <value>Latest – #{0} ({1}, {2})</value>
+  </data>
+  <data name="ArtifactItem" xml:space="preserve">
+    <value>#{0} – {1} – {2}</value>
+  </data>
+  <data name="MissingArtifactSelection" xml:space="preserve">
+    <value>Select a build (artifact) before deploying.</value>
   </data>
 </root>

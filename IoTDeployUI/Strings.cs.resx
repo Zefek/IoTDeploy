@@ -150,7 +150,28 @@ Ověřte připojení zařízení.</value>
   <data name="LabelCom" xml:space="preserve">
     <value>COM</value>
   </data>
+  <data name="LabelUseArtifact" xml:space="preserve">
+    <value>Použít artefakt</value>
+  </data>
   <data name="FormTitle" xml:space="preserve">
     <value>IoT Deployer</value>
+  </data>
+  <data name="LoadingArtifacts" xml:space="preserve">
+    <value>Načítám artefakty...</value>
+  </data>
+  <data name="NoArtifactsAvailable" xml:space="preserve">
+    <value>(žádné artefakty)</value>
+  </data>
+  <data name="ArtifactsLoadFailed" xml:space="preserve">
+    <value>(načtení selhalo: {0})</value>
+  </data>
+  <data name="ArtifactItemLatest" xml:space="preserve">
+    <value>Latest – #{0} ({1}, {2})</value>
+  </data>
+  <data name="ArtifactItem" xml:space="preserve">
+    <value>#{0} – {1} – {2}</value>
+  </data>
+  <data name="MissingArtifactSelection" xml:space="preserve">
+    <value>Před deployem vyberte build (artefakt).</value>
   </data>
 </root>

@@ -48,7 +48,12 @@ internal class Strings
 
     // Program.cs
     internal static string Usage => ResourceManager.GetString("Usage", resourceCulture)!;
-    internal static string ErrorExpected4Args => ResourceManager.GetString("ErrorExpected4Args", resourceCulture)!;
+    internal static string ErrorInvalidArgs => ResourceManager.GetString("ErrorInvalidArgs", resourceCulture)!;
+    internal static string UnknownFlag => ResourceManager.GetString("UnknownFlag", resourceCulture)!;
+    internal static string MissingFlagValue => ResourceManager.GetString("MissingFlagValue", resourceCulture)!;
+    internal static string ResolvingLatestArtifact => ResourceManager.GetString("ResolvingLatestArtifact", resourceCulture)!;
+    internal static string ResolvedLatestArtifact => ResourceManager.GetString("ResolvedLatestArtifact", resourceCulture)!;
+    internal static string NoArtifactFound => ResourceManager.GetString("NoArtifactFound", resourceCulture)!;
     internal static string ErrorConfiguration => ResourceManager.GetString("ErrorConfiguration", resourceCulture)!;
     internal static string InvalidConfiguration => ResourceManager.GetString("InvalidConfiguration", resourceCulture)!;
     internal static string ConnectingToGitHub => ResourceManager.GetString("ConnectingToGitHub", resourceCulture)!;

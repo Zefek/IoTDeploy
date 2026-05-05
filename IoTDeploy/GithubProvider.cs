@@ -15,6 +15,15 @@ public record WorkflowProgress(
     bool IsCompleted,
     string? Conclusion);
 
+public record ArtifactRunInfo(
+    long RunId,
+    string HeadSha,
+    string ShortSha,
+    DateTimeOffset CreatedAt,
+    string ArtifactName,
+    long ArtifactId,
+    long SizeInBytes);
+
 public class GithubProvider
 {
     private static readonly ILogger Logger = Log.ForContext<GithubProvider>();
@@ -211,6 +220,69 @@ public class GithubProvider
         {
             throw new InvalidOperationException(string.Format(Strings.RepositoryNotFoundOrNoActions, repository));
         }
+    }
+
+    public async Task<IReadOnlyList<ArtifactRunInfo>> GetSuccessfulRunsWithArtifactsAsync(
+        string repository, string branch, string? artifactName, string? workflowName, int top, CancellationToken ct = default)
+    {
+        await EnsureValidTokenAsync();
+
+        var request = new WorkflowRunsRequest
+        {
+            Status = new StringEnum<CheckRunStatusFilter>(CheckRunStatusFilter.Success),
+            Branch = branch
+        };
+        var options = new ApiOptions { PageSize = Math.Max(top * 3, 30), PageCount = 1 };
+
+        WorkflowRunsResponse runs;
+        try
+        {
+            runs = string.IsNullOrEmpty(workflowName)
+                ? await gitHubClient.Actions.Workflows.Runs.List(_owner, repository, request, options)
+                : await gitHubClient.Actions.Workflows.Runs.ListByWorkflow(_owner, repository, workflowName, request, options);
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException(string.Format(Strings.RepositoryNotFound, repository));
+        }
+
+        var result = new List<ArtifactRunInfo>();
+        foreach (var run in runs.WorkflowRuns)
+        {
+            if (result.Count >= top) break;
+            ct.ThrowIfCancellationRequested();
+
+            ListArtifactsResponse artifacts;
+            try
+            {
+                artifacts = await gitHubClient.Actions.Artifacts.ListWorkflowArtifacts(_owner, repository, run.Id);
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "Nepodařilo se načíst artefakty pro run {RunId}", run.Id);
+                continue;
+            }
+
+            var match = artifacts.Artifacts.FirstOrDefault(a =>
+                !a.Expired && (string.IsNullOrEmpty(artifactName) || a.Name == artifactName));
+            if (match == null) continue;
+
+            var sha = run.HeadSha ?? "";
+            result.Add(new ArtifactRunInfo(
+                run.Id, sha, sha.Length >= 7 ? sha[..7] : sha,
+                run.CreatedAt, match.Name, match.Id, match.SizeInBytes));
+        }
+        return result;
+    }
+
+    public async Task<ArtifactRunInfo> ResolveLatestArtifactAsync(
+        string repository, string branch, string? artifactName, string? workflowName, CancellationToken ct = default)
+    {
+        var list = await GetSuccessfulRunsWithArtifactsAsync(repository, branch, artifactName, workflowName, 1, ct);
+        if (list.Count == 0)
+            throw new InvalidOperationException(string.Format(Strings.NoArtifactFound,
+                artifactName ?? "*", branch, repository));
+        return list[0];
     }
 
     public async Task<WorkflowProgress?> GetWorkflowProgressAsync(string repository, long runId)
