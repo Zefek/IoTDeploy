@@ -39,6 +39,8 @@ partial class Form1
         btnOpenLog = new Button();
         label4 = new Label();
         cmbPort = new ComboBox();
+        chkUseArtifact = new CheckBox();
+        cmbArtifact = new ComboBox();
         progressBar = new ProgressBar();
         lblStatus = new Label();
         lblResult = new Label();
@@ -79,6 +81,7 @@ partial class Form1
         cmbBranch.Name = "cmbBranch";
         cmbBranch.Size = new Size(305, 33);
         cmbBranch.TabIndex = 2;
+        cmbBranch.SelectedIndexChanged += cmbBranch_SelectedIndexChanged;
         //
         // label3
         //
@@ -145,30 +148,56 @@ partial class Form1
         cmbPort.Size = new Size(305, 33);
         cmbPort.TabIndex = 7;
         //
+        // chkUseArtifact
+        //
+        chkUseArtifact.AutoSize = true;
+        chkUseArtifact.Location = new Point(12, 174);
+        chkUseArtifact.Name = "chkUseArtifact";
+        chkUseArtifact.TabIndex = 8;
+        chkUseArtifact.Text = Strings.LabelUseArtifact;
+        chkUseArtifact.UseVisualStyleBackColor = true;
+        chkUseArtifact.CheckedChanged += chkUseArtifact_CheckedChanged;
+        //
+        // cmbArtifact
+        //
+        cmbArtifact.FormattingEnabled = true;
+        cmbArtifact.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbArtifact.Enabled = false;
+        cmbArtifact.Location = new Point(180, 171);
+        cmbArtifact.Name = "cmbArtifact";
+        cmbArtifact.Size = new Size(462, 33);
+        cmbArtifact.TabIndex = 9;
+        //
+        // btnDeploy (overrides earlier location)
+        //
+        btnDeploy.Location = new Point(127, 217);
+        btnCancel.Location = new Point(360, 217);
+        btnOpenLog.Location = new Point(468, 217);
+        //
         // progressBar
         //
-        progressBar.Location = new Point(12, 215);
+        progressBar.Location = new Point(12, 264);
         progressBar.Name = "progressBar";
         progressBar.Size = new Size(630, 12);
         progressBar.Style = ProgressBarStyle.Marquee;
         progressBar.MarqueeAnimationSpeed = 30;
-        progressBar.TabIndex = 9;
+        progressBar.TabIndex = 10;
         progressBar.Visible = false;
         //
         // lblStatus
         //
         lblStatus.AutoSize = false;
-        lblStatus.Location = new Point(12, 237);
+        lblStatus.Location = new Point(12, 286);
         lblStatus.Name = "lblStatus";
         lblStatus.Size = new Size(630, 25);
-        lblStatus.TabIndex = 10;
+        lblStatus.TabIndex = 11;
         lblStatus.Text = "";
         //
         // lblResult
         //
         lblResult.AutoSize = false;
         lblResult.Font = new Font(Font.FontFamily, 11F, FontStyle.Bold);
-        lblResult.Location = new Point(12, 268);
+        lblResult.Location = new Point(12, 317);
         lblResult.Name = "lblResult";
         lblResult.Size = new Size(630, 30);
         lblResult.TabIndex = 13;
@@ -179,10 +208,12 @@ partial class Form1
         //
         AutoScaleDimensions = new SizeF(10F, 25F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(660, 308);
+        ClientSize = new Size(660, 360);
         Controls.Add(lblResult);
         Controls.Add(lblStatus);
         Controls.Add(progressBar);
+        Controls.Add(chkUseArtifact);
+        Controls.Add(cmbArtifact);
         Controls.Add(label4);
         Controls.Add(cmbPort);
         Controls.Add(btnOpenLog);
@@ -214,6 +245,8 @@ partial class Form1
     private Button btnOpenLog;
     private Label label4;
     private ComboBox cmbPort;
+    private CheckBox chkUseArtifact;
+    private ComboBox cmbArtifact;
     private ProgressBar progressBar;
     private Label lblStatus;
     private Label lblResult;

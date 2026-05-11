@@ -43,20 +43,43 @@
 
   <!-- Program.cs -->
   <data name="Usage" xml:space="preserve">
-    <value>IoTDeploy CLI – firmware deployment via GitHub Actions
+    <value>IoTDeploy CLI – deployment via GitHub Actions
 
 Usage:
-  IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; &lt;environment&gt; &lt;port&gt;
+  IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; &lt;environment&gt; [&lt;port&gt;]
+                [--useartifact &lt;runId|latest&gt;] [--artifact-name &lt;name&gt;] [--workflow &lt;file&gt;]
 
-Example:
+Examples:
   IoTDeploy.exe MyFirmware main production COM3
+  IoTDeploy.exe MyApp main staging --useartifact latest
+  IoTDeploy.exe MyApp main staging --useartifact 12345 --artifact-name publish
+
+Notes:
+  - &lt;port&gt; is optional. If provided, it's passed to the workflow as 'serial_port'.
+  - --useartifact 'latest' resolves to the most recent successful run with a matching artifact
+    on the branch. The resolved run_id is sent as 'artifact_run_id' (and 'artifact_name').
 
 Configuration:
   appsettings.json and .pem file must be in the same folder as the exe.</value>
   </data>
-  <data name="ErrorExpected4Args" xml:space="preserve">
-    <value>Error: 4 arguments expected.
+  <data name="ErrorInvalidArgs" xml:space="preserve">
+    <value>Error: invalid arguments (expected 3 or 4 positional arguments + optional flags).
 </value>
+  </data>
+  <data name="UnknownFlag" xml:space="preserve">
+    <value>Unknown flag: {0}</value>
+  </data>
+  <data name="MissingFlagValue" xml:space="preserve">
+    <value>Missing value for flag: {0}</value>
+  </data>
+  <data name="ResolvingLatestArtifact" xml:space="preserve">
+    <value>Resolving 'latest' artifact on branch '{0}'...</value>
+  </data>
+  <data name="ResolvedLatestArtifact" xml:space="preserve">
+    <value>Resolved 'latest' → run #{0} (sha={1}, created={2:yyyy-MM-dd HH:mm}, artifact={3})</value>
+  </data>
+  <data name="NoArtifactFound" xml:space="preserve">
+    <value>No successful run with artifact '{0}' found on branch '{1}' in repository '{2}'.</value>
   </data>
   <data name="ErrorConfiguration" xml:space="preserve">
     <value>Configuration error: {0}</value>

@@ -67,7 +67,7 @@ public partial class Form1 : Form
         RefreshComPorts();
 
         if (cmbRepository.SelectedItem is null || cmbBranch.SelectedItem is null ||
-            cmbEnvironment.SelectedItem is null || cmbPort.SelectedItem is null)
+            cmbEnvironment.SelectedItem is null)
         {
             MessageBox.Show(Strings.MissingValuesMessage, Strings.MissingValuesTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
@@ -76,16 +76,31 @@ public partial class Form1 : Form
         var repositoryName = cmbRepository.SelectedItem.ToString()!;
         var branchName = cmbBranch.SelectedItem.ToString()!;
         var environmentName = cmbEnvironment.SelectedItem.ToString()!;
-        var comportName = cmbPort.SelectedItem.ToString()!;
+        var comportName = cmbPort.SelectedItem?.ToString();
 
-        if (!SerialPort.GetPortNames().Contains(comportName))
+        if (!string.IsNullOrEmpty(comportName) && !SerialPort.GetPortNames().Contains(comportName))
         {
             MessageBox.Show(string.Format(Strings.PortUnavailable, comportName), Strings.PortUnavailableTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, env={Env}, port={Port}",
-            repositoryName, branchName, environmentName, comportName);
+        var payload = new Dictionary<string, string>();
+        if (!string.IsNullOrEmpty(comportName))
+            payload["serial_port"] = comportName;
+
+        if (chkUseArtifact.Checked)
+        {
+            if (cmbArtifact.SelectedItem is not ArtifactComboItem artifactItem)
+            {
+                MessageBox.Show(Strings.MissingArtifactSelection, Strings.MissingValuesTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            payload["artifact_run_id"] = artifactItem.Info.RunId.ToString();
+            payload["artifact_name"] = artifactItem.Info.ArtifactName;
+        }
+
+        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, env={Env}, payload={@Payload}",
+            repositoryName, branchName, environmentName, payload);
 
         var progress = new Progress<string>(msg => lblStatus.Text = msg);
 
@@ -102,7 +117,7 @@ public partial class Form1 : Form
             await runner.Config(settings.GitHub.Owner, repositoryName, token.Token, settings.Runner.Labels, progress, ct);
             await runner.DownloadTools(progress, ct);
             var (_, runId) = await githubProvider.RunWorkflow(repositoryName, branchName, environmentName,
-                new Dictionary<string, string> { { "serial_port", comportName } }, progress, ct);
+                payload, progress, ct);
 
             // Switch progress bar to continuous mode for step tracking
             progressBar.Style = ProgressBarStyle.Continuous;
@@ -173,6 +188,7 @@ public partial class Form1 : Form
             {
                 cmbEnvironment.Items.Add(env.Name);
             }
+            cmbArtifact.Items.Clear();
             SetUiIdle(Strings.Ready);
         }
         catch (InvalidOperationException ex)
@@ -186,6 +202,64 @@ public partial class Form1 : Form
             Logger.Error(ex, "Neočekávaná chyba při načítání repo={Repo}", repositoryName);
             SetUiIdle("");
             MessageBox.Show(string.Format(Strings.UnexpectedError, ex.Message), Strings.ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async void cmbBranch_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (chkUseArtifact.Checked)
+            await ReloadArtifactsAsync();
+    }
+
+    private async void chkUseArtifact_CheckedChanged(object sender, EventArgs e)
+    {
+        cmbArtifact.Enabled = chkUseArtifact.Checked;
+        if (chkUseArtifact.Checked)
+            await ReloadArtifactsAsync();
+        else
+            cmbArtifact.Items.Clear();
+    }
+
+    private async Task ReloadArtifactsAsync()
+    {
+        var repo = cmbRepository.SelectedItem?.ToString();
+        var branch = cmbBranch.SelectedItem?.ToString();
+        if (string.IsNullOrEmpty(repo) || string.IsNullOrEmpty(branch))
+        {
+            cmbArtifact.Items.Clear();
+            return;
+        }
+
+        cmbArtifact.Items.Clear();
+        cmbArtifact.Items.Add(Strings.LoadingArtifacts);
+        cmbArtifact.SelectedIndex = 0;
+        cmbArtifact.Enabled = false;
+        try
+        {
+            var infos = await githubProvider.GetSuccessfulRunsWithArtifactsAsync(
+                repo, branch, artifactName: null, workflowName: null, top: 10);
+            cmbArtifact.Items.Clear();
+            if (infos.Count == 0)
+            {
+                cmbArtifact.Items.Add(Strings.NoArtifactsAvailable);
+                cmbArtifact.SelectedIndex = 0;
+                return;
+            }
+            cmbArtifact.Items.Add(new ArtifactComboItem(infos[0], IsLatest: true));
+            foreach (var info in infos)
+                cmbArtifact.Items.Add(new ArtifactComboItem(info, IsLatest: false));
+            cmbArtifact.SelectedIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Chyba při načítání artefaktů");
+            cmbArtifact.Items.Clear();
+            cmbArtifact.Items.Add(string.Format(Strings.ArtifactsLoadFailed, ex.Message));
+            cmbArtifact.SelectedIndex = 0;
+        }
+        finally
+        {
+            cmbArtifact.Enabled = chkUseArtifact.Checked;
         }
     }
 
@@ -310,6 +384,8 @@ public partial class Form1 : Form
         cmbBranch.Enabled = false;
         cmbEnvironment.Enabled = false;
         cmbPort.Enabled = false;
+        chkUseArtifact.Enabled = false;
+        cmbArtifact.Enabled = false;
         progressBar.Visible = true;
         lblStatus.Text = status;
     }
@@ -323,9 +399,18 @@ public partial class Form1 : Form
         cmbBranch.Enabled = true;
         cmbEnvironment.Enabled = true;
         cmbPort.Enabled = true;
+        chkUseArtifact.Enabled = true;
+        cmbArtifact.Enabled = chkUseArtifact.Checked;
         progressBar.Visible = false;
         progressBar.Style = ProgressBarStyle.Marquee;
         progressBar.Value = 0;
         lblStatus.Text = status;
+    }
+
+    private sealed record ArtifactComboItem(IoTDeploy.ArtifactRunInfo Info, bool IsLatest)
+    {
+        public override string ToString() => IsLatest
+            ? string.Format(Strings.ArtifactItemLatest, Info.RunId, Info.ShortSha, Info.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
+            : string.Format(Strings.ArtifactItem, Info.RunId, Info.ShortSha, Info.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
     }
 }

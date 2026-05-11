@@ -43,20 +43,43 @@
 
   <!-- Program.cs -->
   <data name="Usage" xml:space="preserve">
-    <value>IoTDeploy CLI – nasazení firmware přes GitHub Actions
+    <value>IoTDeploy CLI – nasazení přes GitHub Actions
 
 Použití:
-  IoTDeploy.exe &lt;repozitář&gt; &lt;větev&gt; &lt;prostředí&gt; &lt;port&gt;
+  IoTDeploy.exe &lt;repozitář&gt; &lt;větev&gt; &lt;prostředí&gt; [&lt;port&gt;]
+                [--useartifact &lt;runId|latest&gt;] [--artifact-name &lt;name&gt;] [--workflow &lt;file&gt;]
 
-Příklad:
+Příklady:
   IoTDeploy.exe MyFirmware main production COM3
+  IoTDeploy.exe MyApp main staging --useartifact latest
+  IoTDeploy.exe MyApp main staging --useartifact 12345 --artifact-name publish
+
+Poznámky:
+  - &lt;port&gt; je volitelný. Pokud je zadán, předá se workflow jako 'serial_port'.
+  - --useartifact 'latest' najde nejnovější úspěšný run s odpovídajícím artefaktem
+    na dané větvi. Konkrétní run_id se pošle jako 'artifact_run_id' (+ 'artifact_name').
 
 Konfigurace:
   appsettings.json a .pem soubor musí být ve stejné složce jako exe.</value>
   </data>
-  <data name="ErrorExpected4Args" xml:space="preserve">
-    <value>Chyba: očekávány 4 argumenty.
+  <data name="ErrorInvalidArgs" xml:space="preserve">
+    <value>Chyba: neplatné argumenty (očekávány 3 nebo 4 poziční argumenty + volitelné přepínače).
 </value>
+  </data>
+  <data name="UnknownFlag" xml:space="preserve">
+    <value>Neznámý přepínač: {0}</value>
+  </data>
+  <data name="MissingFlagValue" xml:space="preserve">
+    <value>Chybí hodnota pro přepínač: {0}</value>
+  </data>
+  <data name="ResolvingLatestArtifact" xml:space="preserve">
+    <value>Hledám 'latest' artefakt na větvi '{0}'...</value>
+  </data>
+  <data name="ResolvedLatestArtifact" xml:space="preserve">
+    <value>'latest' → run #{0} (sha={1}, vytvořeno={2:yyyy-MM-dd HH:mm}, artefakt={3})</value>
+  </data>
+  <data name="NoArtifactFound" xml:space="preserve">
+    <value>Nebyl nalezen úspěšný run s artefaktem '{0}' na větvi '{1}' v repozitáři '{2}'.</value>
   </data>
   <data name="ErrorConfiguration" xml:space="preserve">
     <value>Chyba konfigurace: {0}</value>
