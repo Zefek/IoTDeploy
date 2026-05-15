@@ -9,6 +9,15 @@ public class Runner
 {
     private static readonly ILogger Logger = Log.ForContext<Runner>();
 
+    private readonly string _name;
+    private readonly string _runnerDir;
+
+    public Runner(string name)
+    {
+        _name = name;
+        _runnerDir = Path.Combine(AppContext.BaseDirectory, "runners", name);
+    }
+
     public async Task Download(IProgress<string> progress, CancellationToken ct = default)
     {
         var runnersDir = Path.Combine(AppContext.BaseDirectory, "runners");
@@ -47,25 +56,22 @@ public class Runner
             progress.Report(string.Format(Strings.RunnerAlreadyDownloaded, version));
         }
 
-        Logger.Debug("Rozbaluji runner do {ExtractPath}", Path.Combine(runnersDir, "runner1"));
+        Logger.Debug("Rozbaluji runner do {ExtractPath}", _runnerDir);
         progress.Report(Strings.ExtractingRunner);
-        var extractPath = Path.Combine(runnersDir, "runner1");
-        if (Directory.Exists(extractPath))
-            DeleteDirectory(extractPath);
-        Directory.CreateDirectory(extractPath);
-        ZipFile.ExtractToDirectory(zipPath, extractPath);
+        if (Directory.Exists(_runnerDir))
+            DeleteDirectory(_runnerDir);
+        Directory.CreateDirectory(_runnerDir);
+        ZipFile.ExtractToDirectory(zipPath, _runnerDir);
     }
 
     public async Task Config(string owner, string repository, string token, string[] labels, IProgress<string> progress, CancellationToken ct = default)
     {
         progress.Report(Strings.ConfiguringRunner);
-        var guid = Guid.NewGuid();
-        var path = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "config.cmd");
+        var path = Path.Combine(_runnerDir, "config.cmd");
         var labelList = string.Join(",", labels);
-        var args = $"--url https://github.com/{owner}/{repository} --name {guid} --labels {labelList} --ephemeral --unattended";
-        var workDir = Path.Combine(AppContext.BaseDirectory, "runners", "runner1");
+        var args = $"--url https://github.com/{owner}/{repository} --name {_name} --labels {labelList} --ephemeral --unattended";
         var envVars = new Dictionary<string, string> { ["ACTIONS_RUNNER_INPUT_TOKEN"] = token };
-        await RunProcessAsync(path, args, workDir, progress, Strings.RunnerConfigFailed, ct, envVars);
+        await RunProcessAsync(path, args, _runnerDir, progress, Strings.RunnerConfigFailed, ct, envVars);
     }
 
     public async Task DownloadTools(IProgress<string> progress, CancellationToken ct = default)
@@ -107,7 +113,7 @@ public class Runner
         }
 
         progress.Report(Strings.ExtractingArduino);
-        var extractPath = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "_work", "_tool", "arduino-cli");
+        var extractPath = Path.Combine(_runnerDir, "_work", "_tool", "arduino-cli");
         var arduinoCachePath = Path.Combine(AppContext.BaseDirectory, "arduino_cache");
         if (Directory.Exists(extractPath))
             DeleteDirectory(extractPath);
@@ -134,9 +140,8 @@ public class Runner
     public async Task Run(IProgress<string> progress, CancellationToken ct = default)
     {
         progress.Report(Strings.RunnerRunning);
-        var path = Path.Combine(AppContext.BaseDirectory, "runners", "runner1", "run.cmd");
-        var workDir = Path.Combine(AppContext.BaseDirectory, "runners", "runner1");
-        await RunProcessAsync(path, "", workDir, progress, Strings.RunnerFailed, ct);
+        var path = Path.Combine(_runnerDir, "run.cmd");
+        await RunProcessAsync(path, "", _runnerDir, progress, Strings.RunnerFailed, ct);
     }
 
     private static async Task RunProcessAsync(string fileName, string arguments, string workingDir, IProgress<string> progress, string errorPrefix, CancellationToken ct = default, Dictionary<string, string>? envVars = null)
@@ -196,11 +201,10 @@ public class Runner
 
     public void Delete()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "runners", "runner1");
-        if (Directory.Exists(path))
+        if (Directory.Exists(_runnerDir))
         {
-            DeleteDirectory(path);
-            Logger.Debug("Runner adresář smazán");
+            DeleteDirectory(_runnerDir);
+            Logger.Debug("Runner adresář {Path} smazán", _runnerDir);
         }
     }
 

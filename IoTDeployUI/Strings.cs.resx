@@ -174,4 +174,7 @@ Ověřte připojení zařízení.</value>
   <data name="MissingArtifactSelection" xml:space="preserve">
     <value>Před deployem vyberte build (artefakt).</value>
   </data>
+  <data name="FetchingJobLabels" xml:space="preserve">
+    <value>Čtu požadované labely z queued workflow runu...</value>
+  </data>
 </root>

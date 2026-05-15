@@ -138,8 +138,14 @@ Place it in the application folder.</value>
   <data name="ValidateWorkflowTimeout" xml:space="preserve">
     <value>Runner.WorkflowTimeoutMinutes must be greater than 0</value>
   </data>
-  <data name="ValidateLabels" xml:space="preserve">
-    <value>Runner.Labels must not be empty</value>
+  <data name="FetchingJobLabels" xml:space="preserve">
+    <value>Reading required labels from queued workflow run...</value>
+  </data>
+  <data name="RequiredLabels" xml:space="preserve">
+    <value>Required labels: {0}</value>
+  </data>
+  <data name="NoJobsInRun" xml:space="preserve">
+    <value>Workflow run {0} has no jobs.</value>
   </data>
 
   <!-- GithubProvider.cs -->

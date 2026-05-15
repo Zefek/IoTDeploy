@@ -74,7 +74,9 @@ internal class Strings
     internal static string ValidateOwner => ResourceManager.GetString("ValidateOwner", resourceCulture)!;
     internal static string ValidatePemFilePattern => ResourceManager.GetString("ValidatePemFilePattern", resourceCulture)!;
     internal static string ValidateWorkflowTimeout => ResourceManager.GetString("ValidateWorkflowTimeout", resourceCulture)!;
-    internal static string ValidateLabels => ResourceManager.GetString("ValidateLabels", resourceCulture)!;
+    internal static string FetchingJobLabels => ResourceManager.GetString("FetchingJobLabels", resourceCulture)!;
+    internal static string RequiredLabels => ResourceManager.GetString("RequiredLabels", resourceCulture)!;
+    internal static string NoJobsInRun => ResourceManager.GetString("NoJobsInRun", resourceCulture)!;
 
     // GithubProvider.cs
     internal static string PemFileNotFound => ResourceManager.GetString("PemFileNotFound", resourceCulture)!;

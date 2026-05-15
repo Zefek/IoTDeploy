@@ -138,8 +138,14 @@ Umístěte ho do složky aplikace.</value>
   <data name="ValidateWorkflowTimeout" xml:space="preserve">
     <value>Runner.WorkflowTimeoutMinutes musí být větší než 0</value>
   </data>
-  <data name="ValidateLabels" xml:space="preserve">
-    <value>Runner.Labels nesmí být prázdné</value>
+  <data name="FetchingJobLabels" xml:space="preserve">
+    <value>Čtu požadované labely z queued workflow runu...</value>
+  </data>
+  <data name="RequiredLabels" xml:space="preserve">
+    <value>Požadované labely: {0}</value>
+  </data>
+  <data name="NoJobsInRun" xml:space="preserve">
+    <value>Workflow run {0} nemá žádné joby.</value>
   </data>
 
   <!-- GithubProvider.cs -->
