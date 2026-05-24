@@ -17,8 +17,6 @@ public class AppSettings
             yield return Strings.ValidatePemFilePattern;
         if (Runner.WorkflowTimeoutMinutes <= 0)
             yield return Strings.ValidateWorkflowTimeout;
-        if (Runner.Labels.Length == 0)
-            yield return Strings.ValidateLabels;
     }
 }
 
@@ -33,5 +31,4 @@ public class GitHubSettings
 public class RunnerSettings
 {
     public int WorkflowTimeoutMinutes { get; set; } = 2;
-    public string[] Labels { get; set; } = ["iot"];
 }

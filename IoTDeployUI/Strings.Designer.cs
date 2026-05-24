@@ -93,4 +93,7 @@ internal class Strings
     internal static string ArtifactItemLatest => ResourceManager.GetString("ArtifactItemLatest", resourceCulture)!;
     internal static string ArtifactItem => ResourceManager.GetString("ArtifactItem", resourceCulture)!;
     internal static string MissingArtifactSelection => ResourceManager.GetString("MissingArtifactSelection", resourceCulture)!;
+
+    // Runner flow
+    internal static string FetchingJobLabels => ResourceManager.GetString("FetchingJobLabels", resourceCulture)!;
 }

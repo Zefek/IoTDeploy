@@ -106,18 +106,23 @@ public partial class Form1 : Form
 
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
-        var runner = new IoTDeploy.Runner();
+        var runner = new IoTDeploy.Runner(Guid.NewGuid().ToString("N"));
 
         SetUiBusy(Strings.StartingDeploy);
         lblResult.Visible = false;
         try
         {
-            var token = await githubProvider.GetTokenForRunner(repositoryName);
-            await runner.Download(progress, ct);
-            await runner.Config(settings.GitHub.Owner, repositoryName, token.Token, settings.Runner.Labels, progress, ct);
-            await runner.DownloadTools(progress, ct);
             var (_, runId) = await githubProvider.RunWorkflow(repositoryName, branchName, environmentName,
                 payload, progress, ct);
+
+            ((IProgress<string>)progress).Report(Strings.FetchingJobLabels);
+            var requiredLabels = await githubProvider.GetQueuedJobLabelsAsync(repositoryName, runId, ct);
+            Logger.Information("Required labels: {Labels}", string.Join(", ", requiredLabels));
+
+            var token = await githubProvider.GetTokenForRunner(repositoryName);
+            await runner.Download(progress, ct);
+            await runner.Config(settings.GitHub.Owner, repositoryName, token.Token, requiredLabels.ToArray(), progress, ct);
+            await runner.DownloadTools(progress, ct);
 
             // Switch progress bar to continuous mode for step tracking
             progressBar.Style = ProgressBarStyle.Continuous;

@@ -209,6 +209,17 @@ public class GithubProvider
         throw new TimeoutException(string.Format(Strings.WorkflowTimeout, _workflowTimeoutMinutes));
     }
 
+    public async Task<IReadOnlyList<string>> GetQueuedJobLabelsAsync(string repository, long runId, CancellationToken ct = default)
+    {
+        await EnsureValidTokenAsync();
+        var jobs = await gitHubClient.Actions.Workflows.Jobs.List(_owner, repository, runId);
+        var job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "queued")
+               ?? jobs.Jobs.FirstOrDefault();
+        if (job == null)
+            throw new InvalidOperationException(string.Format(Strings.NoJobsInRun, runId));
+        return job.Labels ?? (IReadOnlyList<string>)Array.Empty<string>();
+    }
+
     public async Task<AccessToken> GetTokenForRunner(string repository)
     {
         await EnsureValidTokenAsync();

@@ -60,7 +60,7 @@ Console.CancelKeyPress += (_, e) =>
 };
 
 var githubProvider = new GithubProvider();
-var runner = new Runner();
+var runner = new Runner(Guid.NewGuid().ToString("N"));
 try
 {
     Console.WriteLine(Strings.ConnectingToGitHub);
@@ -92,11 +92,16 @@ try
         }
     }
 
+    var (_, runId) = await githubProvider.RunWorkflow(cli.Repo, cli.Branch, cli.Env, payload, progress, cts.Token);
+
+    Console.WriteLine(Strings.FetchingJobLabels);
+    var requiredLabels = await githubProvider.GetQueuedJobLabelsAsync(cli.Repo, runId, cts.Token);
+    Console.WriteLine(string.Format(Strings.RequiredLabels, string.Join(", ", requiredLabels)));
+
     var token = await githubProvider.GetTokenForRunner(cli.Repo);
     await runner.Download(progress, cts.Token);
-    await runner.Config(settings.GitHub.Owner, cli.Repo, token.Token, settings.Runner.Labels, progress, cts.Token);
+    await runner.Config(settings.GitHub.Owner, cli.Repo, token.Token, requiredLabels.ToArray(), progress, cts.Token);
     await runner.DownloadTools(progress, cts.Token);
-    var (_, runId) = await githubProvider.RunWorkflow(cli.Repo, cli.Branch, cli.Env, payload, progress, cts.Token);
 
     // Start monitoring workflow progress in background
     var lastStepName = "";

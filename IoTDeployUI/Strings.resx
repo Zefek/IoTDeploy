@@ -173,4 +173,7 @@ Check the device connection.</value>
   <data name="MissingArtifactSelection" xml:space="preserve">
     <value>Select a build (artifact) before deploying.</value>
   </data>
+  <data name="FetchingJobLabels" xml:space="preserve">
+    <value>Reading required labels from queued workflow run...</value>
+  </data>
 </root>
