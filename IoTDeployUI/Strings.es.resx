@@ -81,8 +81,8 @@ Colóquelo en la carpeta de la aplicación.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Iniciando despliegue...</value>
   </data>
-  <data name="LoadingBranchesAndWorkflows" xml:space="preserve">
-    <value>Cargando ramas y workflows...</value>
+  <data name="LoadingRepositoryData" xml:space="preserve">
+    <value>Cargando ramas, workflows y entornos...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Error de carga</value>
@@ -136,6 +136,9 @@ Verifique la conexión del dispositivo.</value>
   </data>
   <data name="LabelWorkflow" xml:space="preserve">
     <value>Workflow</value>
+  </data>
+  <data name="LabelEnvironment" xml:space="preserve">
+    <value>Entorno</value>
   </data>
   <data name="ButtonDeploy" xml:space="preserve">
     <value>Desplegar</value>

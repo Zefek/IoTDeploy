@@ -81,8 +81,8 @@ Legen Sie sie im Anwendungsordner ab.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Deploy wird gestartet...</value>
   </data>
-  <data name="LoadingBranchesAndWorkflows" xml:space="preserve">
-    <value>Branches und Workflows werden geladen...</value>
+  <data name="LoadingRepositoryData" xml:space="preserve">
+    <value>Branches, Workflows und Umgebungen werden geladen...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Ladefehler</value>
@@ -136,6 +136,9 @@ Erwarteter Ordner: {0}</value>
   </data>
   <data name="LabelWorkflow" xml:space="preserve">
     <value>Workflow</value>
+  </data>
+  <data name="LabelEnvironment" xml:space="preserve">
+    <value>Umgebung</value>
   </data>
   <data name="ButtonDeploy" xml:space="preserve">
     <value>Bereitstellen</value>

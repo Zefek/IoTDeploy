@@ -91,7 +91,7 @@ Konfigurace:
     <value>Připojuji se k GitHubu...</value>
   </data>
   <data name="DeployInfo" xml:space="preserve">
-    <value>Deploy: {0} / {1} → workflow '{2}' na portu {3}</value>
+    <value>Deploy: {0} / {1} → workflow '{2}' (env {3}) na portu {4}</value>
   </data>
   <data name="WorkflowsNotFound" xml:space="preserve">
     <value>V repu '{0}' nejsou žádné workflowy.</value>

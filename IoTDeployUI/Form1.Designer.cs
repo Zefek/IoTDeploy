@@ -34,6 +34,8 @@ partial class Form1
         cmbBranch = new ComboBox();
         label3 = new Label();
         cmbWorkflow = new ComboBox();
+        label5 = new Label();
+        cmbEnvironment = new ComboBox();
         btnDeploy = new Button();
         btnCancel = new Button();
         btnOpenLog = new Button();
@@ -101,41 +103,28 @@ partial class Form1
         cmbWorkflow.Size = new Size(305, 33);
         cmbWorkflow.TabIndex = 4;
         //
-        // btnDeploy
+        // label5
         //
-        btnDeploy.Location = new Point(127, 168);
-        btnDeploy.Name = "btnDeploy";
-        btnDeploy.Size = new Size(225, 34);
-        btnDeploy.TabIndex = 6;
-        btnDeploy.Text = Strings.ButtonDeploy;
-        btnDeploy.UseVisualStyleBackColor = true;
-        btnDeploy.Click += btnDeploy_Click;
+        label5.AutoSize = true;
+        label5.Location = new Point(12, 132);
+        label5.Name = "label5";
+        label5.Size = new Size(112, 25);
+        label5.TabIndex = 14;
+        label5.Text = Strings.LabelEnvironment;
         //
-        // btnCancel
+        // cmbEnvironment
         //
-        btnCancel.Location = new Point(360, 168);
-        btnCancel.Name = "btnCancel";
-        btnCancel.Size = new Size(100, 34);
-        btnCancel.TabIndex = 12;
-        btnCancel.Text = Strings.ButtonCancel;
-        btnCancel.UseVisualStyleBackColor = true;
-        btnCancel.Visible = false;
-        btnCancel.Click += btnCancel_Click;
-        //
-        // btnOpenLog
-        //
-        btnOpenLog.Location = new Point(468, 168);
-        btnOpenLog.Name = "btnOpenLog";
-        btnOpenLog.Size = new Size(72, 34);
-        btnOpenLog.TabIndex = 11;
-        btnOpenLog.Text = Strings.ButtonLog;
-        btnOpenLog.UseVisualStyleBackColor = true;
-        btnOpenLog.Click += btnOpenLog_Click;
+        cmbEnvironment.FormattingEnabled = true;
+        cmbEnvironment.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbEnvironment.Location = new Point(127, 129);
+        cmbEnvironment.Name = "cmbEnvironment";
+        cmbEnvironment.Size = new Size(305, 33);
+        cmbEnvironment.TabIndex = 5;
         //
         // label4
         //
         label4.AutoSize = true;
-        label4.Location = new Point(12, 132);
+        label4.Location = new Point(12, 171);
         label4.Name = "label4";
         label4.Size = new Size(53, 25);
         label4.TabIndex = 8;
@@ -144,7 +133,7 @@ partial class Form1
         // cmbPort
         //
         cmbPort.FormattingEnabled = true;
-        cmbPort.Location = new Point(127, 129);
+        cmbPort.Location = new Point(127, 168);
         cmbPort.Name = "cmbPort";
         cmbPort.Size = new Size(305, 33);
         cmbPort.TabIndex = 7;
@@ -152,7 +141,7 @@ partial class Form1
         // chkUseArtifact
         //
         chkUseArtifact.AutoSize = true;
-        chkUseArtifact.Location = new Point(12, 174);
+        chkUseArtifact.Location = new Point(12, 213);
         chkUseArtifact.Name = "chkUseArtifact";
         chkUseArtifact.TabIndex = 8;
         chkUseArtifact.Text = Strings.LabelUseArtifact;
@@ -164,20 +153,45 @@ partial class Form1
         cmbArtifact.FormattingEnabled = true;
         cmbArtifact.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbArtifact.Enabled = false;
-        cmbArtifact.Location = new Point(180, 171);
+        cmbArtifact.Location = new Point(180, 210);
         cmbArtifact.Name = "cmbArtifact";
         cmbArtifact.Size = new Size(462, 33);
         cmbArtifact.TabIndex = 9;
         //
-        // btnDeploy (overrides earlier location)
+        // btnDeploy
         //
-        btnDeploy.Location = new Point(127, 217);
-        btnCancel.Location = new Point(360, 217);
-        btnOpenLog.Location = new Point(468, 217);
+        btnDeploy.Location = new Point(127, 256);
+        btnDeploy.Name = "btnDeploy";
+        btnDeploy.Size = new Size(225, 34);
+        btnDeploy.TabIndex = 6;
+        btnDeploy.Text = Strings.ButtonDeploy;
+        btnDeploy.UseVisualStyleBackColor = true;
+        btnDeploy.Click += btnDeploy_Click;
+        //
+        // btnCancel
+        //
+        btnCancel.Location = new Point(360, 256);
+        btnCancel.Name = "btnCancel";
+        btnCancel.Size = new Size(100, 34);
+        btnCancel.TabIndex = 12;
+        btnCancel.Text = Strings.ButtonCancel;
+        btnCancel.UseVisualStyleBackColor = true;
+        btnCancel.Visible = false;
+        btnCancel.Click += btnCancel_Click;
+        //
+        // btnOpenLog
+        //
+        btnOpenLog.Location = new Point(468, 256);
+        btnOpenLog.Name = "btnOpenLog";
+        btnOpenLog.Size = new Size(72, 34);
+        btnOpenLog.TabIndex = 11;
+        btnOpenLog.Text = Strings.ButtonLog;
+        btnOpenLog.UseVisualStyleBackColor = true;
+        btnOpenLog.Click += btnOpenLog_Click;
         //
         // progressBar
         //
-        progressBar.Location = new Point(12, 264);
+        progressBar.Location = new Point(12, 303);
         progressBar.Name = "progressBar";
         progressBar.Size = new Size(630, 12);
         progressBar.Style = ProgressBarStyle.Marquee;
@@ -188,7 +202,7 @@ partial class Form1
         // lblStatus
         //
         lblStatus.AutoSize = false;
-        lblStatus.Location = new Point(12, 286);
+        lblStatus.Location = new Point(12, 325);
         lblStatus.Name = "lblStatus";
         lblStatus.Size = new Size(630, 25);
         lblStatus.TabIndex = 11;
@@ -198,7 +212,7 @@ partial class Form1
         //
         lblResult.AutoSize = false;
         lblResult.Font = new Font(Font.FontFamily, 11F, FontStyle.Bold);
-        lblResult.Location = new Point(12, 317);
+        lblResult.Location = new Point(12, 356);
         lblResult.Name = "lblResult";
         lblResult.Size = new Size(630, 30);
         lblResult.TabIndex = 13;
@@ -209,7 +223,7 @@ partial class Form1
         //
         AutoScaleDimensions = new SizeF(10F, 25F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(660, 360);
+        ClientSize = new Size(660, 399);
         Controls.Add(lblResult);
         Controls.Add(lblStatus);
         Controls.Add(progressBar);
@@ -220,6 +234,8 @@ partial class Form1
         Controls.Add(btnOpenLog);
         Controls.Add(btnCancel);
         Controls.Add(btnDeploy);
+        Controls.Add(label5);
+        Controls.Add(cmbEnvironment);
         Controls.Add(label3);
         Controls.Add(cmbWorkflow);
         Controls.Add(label2);
@@ -241,6 +257,8 @@ partial class Form1
     private ComboBox cmbBranch;
     private Label label3;
     private ComboBox cmbWorkflow;
+    private Label label5;
+    private ComboBox cmbEnvironment;
     private Button btnDeploy;
     private Button btnCancel;
     private Button btnOpenLog;

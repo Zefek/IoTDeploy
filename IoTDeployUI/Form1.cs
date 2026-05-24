@@ -39,6 +39,7 @@ public partial class Form1 : Form
             }
             cmbBranch.Items.Clear();
             cmbWorkflow.Items.Clear();
+            cmbEnvironment.Items.Clear();
             RefreshComPorts();
             SetUiIdle(Strings.Ready);
         }
@@ -67,7 +68,8 @@ public partial class Form1 : Form
         RefreshComPorts();
 
         if (cmbRepository.SelectedItem is null || cmbBranch.SelectedItem is null ||
-            cmbWorkflow.SelectedItem is not WorkflowComboItem workflowItem)
+            cmbWorkflow.SelectedItem is not WorkflowComboItem workflowItem ||
+            cmbEnvironment.SelectedItem is null)
         {
             MessageBox.Show(Strings.MissingValuesMessage, Strings.MissingValuesTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
@@ -76,6 +78,7 @@ public partial class Form1 : Form
         var repositoryName = cmbRepository.SelectedItem.ToString()!;
         var branchName = cmbBranch.SelectedItem.ToString()!;
         var workflow = workflowItem.Info;
+        var environmentName = cmbEnvironment.SelectedItem.ToString()!;
         var comportName = cmbPort.SelectedItem?.ToString();
 
         if (!string.IsNullOrEmpty(comportName) && !SerialPort.GetPortNames().Contains(comportName))
@@ -84,7 +87,10 @@ public partial class Form1 : Form
             return;
         }
 
-        var payload = new Dictionary<string, string>();
+        var payload = new Dictionary<string, string>
+        {
+            ["environment"] = environmentName
+        };
         if (!string.IsNullOrEmpty(comportName))
             payload["serial_port"] = comportName;
 
@@ -99,8 +105,8 @@ public partial class Form1 : Form
             payload["artifact_name"] = artifactItem.Info.ArtifactName;
         }
 
-        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, workflow={Workflow}, payload={@Payload}",
-            repositoryName, branchName, workflow.Name, payload);
+        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, workflow={Workflow}, env={Env}, payload={@Payload}",
+            repositoryName, branchName, workflow.Name, environmentName, payload);
 
         var progress = new Progress<string>(msg => lblStatus.Text = msg);
 
@@ -179,7 +185,7 @@ public partial class Form1 : Form
         var repositoryName = cmbRepository.SelectedItem?.ToString();
         if (repositoryName is null) return;
 
-        SetUiBusy(Strings.LoadingBranchesAndWorkflows);
+        SetUiBusy(Strings.LoadingRepositoryData);
         try
         {
             cmbBranch.Items.Clear();
@@ -196,6 +202,14 @@ public partial class Form1 : Form
             }
             if (cmbWorkflow.Items.Count > 0)
                 cmbWorkflow.SelectedIndex = 0;
+
+            cmbEnvironment.Items.Clear();
+            foreach (var env in await githubProvider.GetEnvironments(repositoryName))
+            {
+                cmbEnvironment.Items.Add(env.Name);
+            }
+            if (cmbEnvironment.Items.Count > 0)
+                cmbEnvironment.SelectedIndex = 0;
 
             cmbArtifact.Items.Clear();
             SetUiIdle(Strings.Ready);
@@ -392,6 +406,7 @@ public partial class Form1 : Form
         cmbRepository.Enabled = false;
         cmbBranch.Enabled = false;
         cmbWorkflow.Enabled = false;
+        cmbEnvironment.Enabled = false;
         cmbPort.Enabled = false;
         chkUseArtifact.Enabled = false;
         cmbArtifact.Enabled = false;
@@ -407,6 +422,7 @@ public partial class Form1 : Form
         cmbRepository.Enabled = true;
         cmbBranch.Enabled = true;
         cmbWorkflow.Enabled = true;
+        cmbEnvironment.Enabled = true;
         cmbPort.Enabled = true;
         chkUseArtifact.Enabled = true;
         cmbArtifact.Enabled = chkUseArtifact.Checked;

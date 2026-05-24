@@ -88,9 +88,12 @@ try
                 cli.WorkflowName, cli.Repo, string.Join(", ", workflows.Select(w => w.Name))));
     }
 
-    Console.WriteLine(string.Format(Strings.DeployInfo, cli.Repo, cli.Branch, selectedWorkflow.Name, cli.Port ?? "-"));
+    Console.WriteLine(string.Format(Strings.DeployInfo, cli.Repo, cli.Branch, selectedWorkflow.Name, cli.Env, cli.Port ?? "-"));
 
-    var payload = new Dictionary<string, string>();
+    var payload = new Dictionary<string, string>
+    {
+        ["environment"] = cli.Env
+    };
     if (!string.IsNullOrEmpty(cli.Port))
         payload["serial_port"] = cli.Port;
 
@@ -247,13 +250,14 @@ static CliArgs ParseArgs(string[] args)
         }
     }
 
-    if (positional.Count is < 2 or > 3)
+    if (positional.Count is < 3 or > 4)
         throw new ArgumentException(Strings.ErrorInvalidArgs);
 
     return new CliArgs(
         Repo: positional[0],
         Branch: positional[1],
-        Port: positional.Count == 3 ? positional[2] : null,
+        Env: positional[2],
+        Port: positional.Count == 4 ? positional[3] : null,
         UseArtifact: useArtifact,
         ArtifactName: artifactName,
         WorkflowName: workflowName);
@@ -269,6 +273,7 @@ static string RequireValue(string[] args, ref int i, string flag)
 internal record CliArgs(
     string Repo,
     string Branch,
+    string Env,
     string? Port,
     string? UseArtifact,
     string? ArtifactName,

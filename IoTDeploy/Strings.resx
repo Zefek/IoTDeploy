@@ -46,16 +46,17 @@
     <value>IoTDeploy CLI – deployment via GitHub Actions
 
 Usage:
-  IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; [&lt;port&gt;]
+  IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; &lt;environment&gt; [&lt;port&gt;]
                 [--workflow &lt;name|file&gt;]
                 [--useartifact &lt;runId|latest&gt;] [--artifact-name &lt;name&gt;]
 
 Examples:
-  IoTDeploy.exe MyFirmware main COM3 --workflow deploy.yml
-  IoTDeploy.exe MyApp main --workflow deploy.yml --useartifact latest
-  IoTDeploy.exe MyApp main --workflow deploy.yml --useartifact 12345 --artifact-name publish
+  IoTDeploy.exe MyFirmware main production COM3 --workflow deploy.yml
+  IoTDeploy.exe MyApp main staging --workflow deploy.yml --useartifact latest
+  IoTDeploy.exe MyApp main staging --workflow deploy.yml --useartifact 12345 --artifact-name publish
 
 Notes:
+  - &lt;environment&gt; is passed to the workflow as input 'environment'.
   - &lt;port&gt; is optional. If provided, it's passed to the workflow as input 'serial_port'.
   - --workflow targets a specific workflow file. If omitted and the repo has only one workflow,
     that one is used; if multiple workflows exist, --workflow is required.
@@ -67,7 +68,7 @@ Configuration:
   appsettings.json and .pem file must be in the same folder as the exe.</value>
   </data>
   <data name="ErrorInvalidArgs" xml:space="preserve">
-    <value>Error: invalid arguments (expected 2 or 3 positional arguments + optional flags).
+    <value>Error: invalid arguments (expected 3 or 4 positional arguments + optional flags).
 </value>
   </data>
   <data name="UnknownFlag" xml:space="preserve">
@@ -95,7 +96,7 @@ Configuration:
     <value>Connecting to GitHub...</value>
   </data>
   <data name="DeployInfo" xml:space="preserve">
-    <value>Deploy: {0} / {1} → workflow '{2}' on port {3}</value>
+    <value>Deploy: {0} / {1} → workflow '{2}' (env {3}) on port {4}</value>
   </data>
   <data name="WorkflowsNotFound" xml:space="preserve">
     <value>No workflows found in repository '{0}'.</value>
