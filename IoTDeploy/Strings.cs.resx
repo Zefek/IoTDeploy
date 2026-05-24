@@ -91,7 +91,20 @@ Konfigurace:
     <value>Připojuji se k GitHubu...</value>
   </data>
   <data name="DeployInfo" xml:space="preserve">
-    <value>Deploy: {0} / {1} → {2} na {3}</value>
+    <value>Deploy: {0} / {1} → workflow '{2}' na portu {3}</value>
+  </data>
+  <data name="WorkflowsNotFound" xml:space="preserve">
+    <value>V repu '{0}' nejsou žádné workflowy.</value>
+  </data>
+  <data name="WorkflowAmbiguous" xml:space="preserve">
+    <value>Repo '{0}' obsahuje více workflowů, je nutné použít --workflow. Dostupné: {1}</value>
+  </data>
+  <data name="WorkflowNotFound" xml:space="preserve">
+    <value>Workflow '{0}' nebyl nalezen v repu '{1}'. Dostupné: {2}</value>
+  </data>
+  <data name="DispatchFailed" xml:space="preserve">
+    <value>Spuštění workflow_dispatch selhalo: {0}
+Cílový workflow musí mít deklarováno `on: workflow_dispatch:` s odpovídajícími `inputs:`.</value>
   </data>
   <data name="CancellingDeploy" xml:space="preserve">
     <value>Rušení deploye (Ctrl+C)...</value>

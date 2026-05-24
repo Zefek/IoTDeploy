@@ -81,8 +81,8 @@ Umístěte ho do složky aplikace.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Spouštím deploy...</value>
   </data>
-  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Načítám větve a prostředí...</value>
+  <data name="LoadingBranchesAndWorkflows" xml:space="preserve">
+    <value>Načítám větve a workflowy...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Chyba načítání</value>
@@ -135,8 +135,8 @@ Ověřte připojení zařízení.</value>
   <data name="LabelBranch" xml:space="preserve">
     <value>Branch</value>
   </data>
-  <data name="LabelEnvironment" xml:space="preserve">
-    <value>Environment</value>
+  <data name="LabelWorkflow" xml:space="preserve">
+    <value>Workflow</value>
   </data>
   <data name="ButtonDeploy" xml:space="preserve">
     <value>Deploy</value>

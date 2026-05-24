@@ -81,8 +81,8 @@ Placez-le dans le dossier de l'application.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Lancement du déploiement...</value>
   </data>
-  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Chargement des branches et environnements...</value>
+  <data name="LoadingBranchesAndWorkflows" xml:space="preserve">
+    <value>Chargement des branches et workflows...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Erreur de chargement</value>
@@ -134,8 +134,8 @@ Vérifiez la connexion de l'appareil.</value>
   <data name="LabelBranch" xml:space="preserve">
     <value>Branche</value>
   </data>
-  <data name="LabelEnvironment" xml:space="preserve">
-    <value>Environnement</value>
+  <data name="LabelWorkflow" xml:space="preserve">
+    <value>Workflow</value>
   </data>
   <data name="ButtonDeploy" xml:space="preserve">
     <value>Déployer</value>

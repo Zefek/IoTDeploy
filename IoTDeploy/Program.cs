@@ -66,7 +66,29 @@ try
     Console.WriteLine(Strings.ConnectingToGitHub);
     await githubProvider.Init(settings);
 
-    Console.WriteLine(string.Format(Strings.DeployInfo, cli.Repo, cli.Branch, cli.Env, cli.Port ?? "-"));
+    var workflows = await githubProvider.GetWorkflows(cli.Repo);
+    if (workflows.Count == 0)
+        throw new InvalidOperationException(string.Format(Strings.WorkflowsNotFound, cli.Repo));
+
+    WorkflowInfo selectedWorkflow;
+    if (string.IsNullOrEmpty(cli.WorkflowName))
+    {
+        if (workflows.Count > 1)
+            throw new InvalidOperationException(string.Format(Strings.WorkflowAmbiguous,
+                cli.Repo, string.Join(", ", workflows.Select(w => w.Name))));
+        selectedWorkflow = workflows[0];
+    }
+    else
+    {
+        selectedWorkflow = workflows.FirstOrDefault(w =>
+            string.Equals(w.Name, cli.WorkflowName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(System.IO.Path.GetFileName(w.Path), cli.WorkflowName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(w.Path, cli.WorkflowName, StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException(string.Format(Strings.WorkflowNotFound,
+                cli.WorkflowName, cli.Repo, string.Join(", ", workflows.Select(w => w.Name))));
+    }
+
+    Console.WriteLine(string.Format(Strings.DeployInfo, cli.Repo, cli.Branch, selectedWorkflow.Name, cli.Port ?? "-"));
 
     var payload = new Dictionary<string, string>();
     if (!string.IsNullOrEmpty(cli.Port))
@@ -78,7 +100,7 @@ try
         {
             Console.WriteLine(string.Format(Strings.ResolvingLatestArtifact, cli.Branch));
             var info = await githubProvider.ResolveLatestArtifactAsync(
-                cli.Repo, cli.Branch, cli.ArtifactName, cli.WorkflowName, cts.Token);
+                cli.Repo, cli.Branch, cli.ArtifactName, null, cts.Token);
             Console.WriteLine(string.Format(Strings.ResolvedLatestArtifact,
                 info.RunId, info.ShortSha, info.CreatedAt, info.ArtifactName));
             payload["artifact_run_id"] = info.RunId.ToString();
@@ -92,7 +114,7 @@ try
         }
     }
 
-    var (_, runId) = await githubProvider.RunWorkflow(cli.Repo, cli.Branch, cli.Env, payload, progress, cts.Token);
+    var runId = await githubProvider.RunWorkflow(cli.Repo, cli.Branch, selectedWorkflow.Id, payload, progress, cts.Token);
 
     Console.WriteLine(Strings.FetchingJobLabels);
     var requiredLabels = await githubProvider.GetQueuedJobLabelsAsync(cli.Repo, runId, cts.Token);
@@ -225,14 +247,13 @@ static CliArgs ParseArgs(string[] args)
         }
     }
 
-    if (positional.Count is < 3 or > 4)
+    if (positional.Count is < 2 or > 3)
         throw new ArgumentException(Strings.ErrorInvalidArgs);
 
     return new CliArgs(
         Repo: positional[0],
         Branch: positional[1],
-        Env: positional[2],
-        Port: positional.Count == 4 ? positional[3] : null,
+        Port: positional.Count == 3 ? positional[2] : null,
         UseArtifact: useArtifact,
         ArtifactName: artifactName,
         WorkflowName: workflowName);
@@ -248,7 +269,6 @@ static string RequireValue(string[] args, ref int i, string flag)
 internal record CliArgs(
     string Repo,
     string Branch,
-    string Env,
     string? Port,
     string? UseArtifact,
     string? ArtifactName,

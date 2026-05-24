@@ -33,7 +33,7 @@ partial class Form1
         label2 = new Label();
         cmbBranch = new ComboBox();
         label3 = new Label();
-        cmbEnvironment = new ComboBox();
+        cmbWorkflow = new ComboBox();
         btnDeploy = new Button();
         btnCancel = new Button();
         btnOpenLog = new Button();
@@ -90,15 +90,16 @@ partial class Form1
         label3.Name = "label3";
         label3.Size = new Size(112, 25);
         label3.TabIndex = 5;
-        label3.Text = Strings.LabelEnvironment;
+        label3.Text = Strings.LabelWorkflow;
         //
-        // cmbEnvironment
+        // cmbWorkflow
         //
-        cmbEnvironment.FormattingEnabled = true;
-        cmbEnvironment.Location = new Point(127, 90);
-        cmbEnvironment.Name = "cmbEnvironment";
-        cmbEnvironment.Size = new Size(305, 33);
-        cmbEnvironment.TabIndex = 4;
+        cmbWorkflow.FormattingEnabled = true;
+        cmbWorkflow.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbWorkflow.Location = new Point(127, 90);
+        cmbWorkflow.Name = "cmbWorkflow";
+        cmbWorkflow.Size = new Size(305, 33);
+        cmbWorkflow.TabIndex = 4;
         //
         // btnDeploy
         //
@@ -220,7 +221,7 @@ partial class Form1
         Controls.Add(btnCancel);
         Controls.Add(btnDeploy);
         Controls.Add(label3);
-        Controls.Add(cmbEnvironment);
+        Controls.Add(cmbWorkflow);
         Controls.Add(label2);
         Controls.Add(cmbBranch);
         Controls.Add(label1);
@@ -239,7 +240,7 @@ partial class Form1
     private Label label2;
     private ComboBox cmbBranch;
     private Label label3;
-    private ComboBox cmbEnvironment;
+    private ComboBox cmbWorkflow;
     private Button btnDeploy;
     private Button btnCancel;
     private Button btnOpenLog;

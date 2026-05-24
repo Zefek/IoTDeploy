@@ -58,6 +58,10 @@ internal class Strings
     internal static string InvalidConfiguration => ResourceManager.GetString("InvalidConfiguration", resourceCulture)!;
     internal static string ConnectingToGitHub => ResourceManager.GetString("ConnectingToGitHub", resourceCulture)!;
     internal static string DeployInfo => ResourceManager.GetString("DeployInfo", resourceCulture)!;
+    internal static string WorkflowsNotFound => ResourceManager.GetString("WorkflowsNotFound", resourceCulture)!;
+    internal static string WorkflowAmbiguous => ResourceManager.GetString("WorkflowAmbiguous", resourceCulture)!;
+    internal static string WorkflowNotFound => ResourceManager.GetString("WorkflowNotFound", resourceCulture)!;
+    internal static string DispatchFailed => ResourceManager.GetString("DispatchFailed", resourceCulture)!;
     internal static string CancellingDeploy => ResourceManager.GetString("CancellingDeploy", resourceCulture)!;
     internal static string DeploySuccess => ResourceManager.GetString("DeploySuccess", resourceCulture)!;
     internal static string DeployFailed => ResourceManager.GetString("DeployFailed", resourceCulture)!;

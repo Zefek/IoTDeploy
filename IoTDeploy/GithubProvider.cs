@@ -24,6 +24,8 @@ public record ArtifactRunInfo(
     long ArtifactId,
     long SizeInBytes);
 
+public record WorkflowInfo(long Id, string Name, string Path);
+
 public class GithubProvider
 {
     private static readonly ILogger Logger = Log.ForContext<GithubProvider>();
@@ -156,56 +158,76 @@ public class GithubProvider
         return (await gitHubClient.Repository.Environment.GetAll(_owner, repository)).Environments;
     }
 
-    public async Task<(Deployment deployment, long workflowRunId)> RunWorkflow(string repository, string branchName, string environment, Dictionary<string, string> parameters, IProgress<string> progress, CancellationToken ct = default)
+    public async Task<IReadOnlyList<WorkflowInfo>> GetWorkflows(string repository)
+    {
+        await EnsureValidTokenAsync();
+        try
+        {
+            var response = await gitHubClient.Actions.Workflows.List(_owner, repository);
+            return response.Workflows
+                .Where(w => string.Equals(w.State.StringValue, "active", StringComparison.OrdinalIgnoreCase))
+                .Select(w => new WorkflowInfo(w.Id, w.Name, w.Path))
+                .ToList();
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException(string.Format(Strings.RepositoryNotFound, repository));
+        }
+    }
+
+    public async Task<long> RunWorkflow(string repository, string branchName, long workflowId, Dictionary<string, string> parameters, IProgress<string> progress, CancellationToken ct = default)
     {
         await EnsureValidTokenAsync();
 
         progress.Report(Strings.StartingWorkflow);
         var createdAt = DateTimeOffset.UtcNow;
-        Deployment deployment;
         try
         {
-            deployment = await gitHubClient.Repository.Deployment.Create(_owner, repository, new NewDeployment(branchName)
+            var dispatch = new CreateWorkflowDispatch(branchName)
             {
-                Payload = parameters,
-                Environment = environment,
-                AutoMerge = false,
-                RequiredContexts = new System.Collections.ObjectModel.Collection<string>()
-            });
+                Inputs = parameters.ToDictionary(kv => kv.Key, kv => (object)kv.Value)
+            };
+
+            await gitHubClient.Actions.Workflows.CreateDispatch(_owner, repository, workflowId, dispatch);
         }
         catch (NotFoundException)
         {
             throw new InvalidOperationException(string.Format(Strings.BranchNotFound, branchName, repository));
         }
+        catch (ApiValidationException ex)
+        {
+            throw new InvalidOperationException(string.Format(Strings.DispatchFailed, ex.Message), ex);
+        }
 
-        Logger.Information("Deployment vytvořen (Id={DeploymentId}, repo={Repo}, branch={Branch}, env={Env})",
-            deployment.Id, repository, branchName, environment);
+        Logger.Information("Workflow dispatch vytvořen (WorkflowId={WorkflowId}, repo={Repo}, branch={Branch})",
+            workflowId, repository, branchName);
 
         progress.Report(Strings.WaitingForApproval);
-        var run = await WaitForQueuedRunAsync(repository, createdAt, progress, ct);
+        var run = await WaitForQueuedRunAsync(repository, workflowId, createdAt, progress, ct);
 
         Logger.Information("Workflow run spuštěn (RunId={RunId})", run.Id);
-        return (deployment, run.Id);
+        return run.Id;
     }
 
-    private async Task<WorkflowRun> WaitForQueuedRunAsync(string repository, DateTimeOffset createdAfter, IProgress<string> progress, CancellationToken ct = default)
+    private async Task<WorkflowRun> WaitForQueuedRunAsync(string repository, long workflowId, DateTimeOffset createdAfter, IProgress<string> progress, CancellationToken ct = default)
     {
         var deadline = DateTimeOffset.UtcNow.AddMinutes(_workflowTimeoutMinutes);
         var attempt = 0;
-        Logger.Debug("Čekám na workflow run v repo={Repo} (timeout={Timeout}min)", repository, _workflowTimeoutMinutes);
+        Logger.Debug("Čekám na workflow run v repo={Repo}, workflow={WorkflowId} (timeout={Timeout}min)", repository, workflowId, _workflowTimeoutMinutes);
         while (DateTimeOffset.UtcNow < deadline)
         {
             await Task.Delay(3000, ct);
             attempt++;
             progress.Report(string.Format(Strings.WaitingForWorkflow, attempt * 3));
-            var runs = await gitHubClient.Actions.Workflows.Runs.List(
-                _owner, repository,
-                new WorkflowRunsRequest { Status = new StringEnum<CheckRunStatusFilter>(CheckRunStatusFilter.Queued) });
+            var runs = await gitHubClient.Actions.Workflows.Runs.ListByWorkflow(
+                _owner, repository, workflowId);
 
-            var run = runs.WorkflowRuns.FirstOrDefault(r => r.CreatedAt >= createdAfter);
+            var run = runs.WorkflowRuns.FirstOrDefault(r =>
+                r.CreatedAt >= createdAfter &&
+                r.Status.StringValue != "completed");
             if (run != null) return run;
         }
-        Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, timeout={Timeout}min)", repository, _workflowTimeoutMinutes);
+        Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, workflow={WorkflowId}, timeout={Timeout}min)", repository, workflowId, _workflowTimeoutMinutes);
         throw new TimeoutException(string.Format(Strings.WorkflowTimeout, _workflowTimeoutMinutes));
     }
 

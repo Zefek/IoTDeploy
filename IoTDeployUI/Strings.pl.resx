@@ -81,8 +81,8 @@ Umieść go w folderze aplikacji.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Uruchamianie wdrożenia...</value>
   </data>
-  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Ładowanie gałęzi i środowisk...</value>
+  <data name="LoadingBranchesAndWorkflows" xml:space="preserve">
+    <value>Ładowanie gałęzi i workflow...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Błąd ładowania</value>
@@ -134,8 +134,8 @@ Sprawdź połączenie urządzenia.</value>
   <data name="LabelBranch" xml:space="preserve">
     <value>Gałąź</value>
   </data>
-  <data name="LabelEnvironment" xml:space="preserve">
-    <value>Środowisko</value>
+  <data name="LabelWorkflow" xml:space="preserve">
+    <value>Workflow</value>
   </data>
   <data name="ButtonDeploy" xml:space="preserve">
     <value>Wdróż</value>
