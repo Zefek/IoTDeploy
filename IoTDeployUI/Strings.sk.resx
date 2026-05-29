@@ -81,8 +81,8 @@ Umiestnite ho do priečinka aplikácie.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Spúšťam nasadenie...</value>
   </data>
-  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Načítavam vetvy a prostredia...</value>
+  <data name="LoadingRepositoryData" xml:space="preserve">
+    <value>Načítavam vetvy, workflowy a prostredia...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Chyba načítavania</value>
@@ -133,6 +133,9 @@ Overte pripojenie zariadenia.</value>
   </data>
   <data name="LabelBranch" xml:space="preserve">
     <value>Vetva</value>
+  </data>
+  <data name="LabelWorkflow" xml:space="preserve">
+    <value>Workflow</value>
   </data>
   <data name="LabelEnvironment" xml:space="preserve">
     <value>Prostredie</value>

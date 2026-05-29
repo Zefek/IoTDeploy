@@ -38,6 +38,7 @@ public partial class Form1 : Form
                 cmbRepository.Items.Add(repo.Name);
             }
             cmbBranch.Items.Clear();
+            cmbWorkflow.Items.Clear();
             cmbEnvironment.Items.Clear();
             RefreshComPorts();
             SetUiIdle(Strings.Ready);
@@ -67,6 +68,7 @@ public partial class Form1 : Form
         RefreshComPorts();
 
         if (cmbRepository.SelectedItem is null || cmbBranch.SelectedItem is null ||
+            cmbWorkflow.SelectedItem is not WorkflowComboItem workflowItem ||
             cmbEnvironment.SelectedItem is null)
         {
             MessageBox.Show(Strings.MissingValuesMessage, Strings.MissingValuesTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -75,6 +77,7 @@ public partial class Form1 : Form
 
         var repositoryName = cmbRepository.SelectedItem.ToString()!;
         var branchName = cmbBranch.SelectedItem.ToString()!;
+        var workflow = workflowItem.Info;
         var environmentName = cmbEnvironment.SelectedItem.ToString()!;
         var comportName = cmbPort.SelectedItem?.ToString();
 
@@ -84,7 +87,10 @@ public partial class Form1 : Form
             return;
         }
 
-        var payload = new Dictionary<string, string>();
+        var payload = new Dictionary<string, string>
+        {
+            ["environment"] = environmentName
+        };
         if (!string.IsNullOrEmpty(comportName))
             payload["serial_port"] = comportName;
 
@@ -99,8 +105,8 @@ public partial class Form1 : Form
             payload["artifact_name"] = artifactItem.Info.ArtifactName;
         }
 
-        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, env={Env}, payload={@Payload}",
-            repositoryName, branchName, environmentName, payload);
+        Logger.Information("Zahajuji deploy: repo={Repo}, branch={Branch}, workflow={Workflow}, env={Env}, payload={@Payload}",
+            repositoryName, branchName, workflow.Name, environmentName, payload);
 
         var progress = new Progress<string>(msg => lblStatus.Text = msg);
 
@@ -112,7 +118,7 @@ public partial class Form1 : Form
         lblResult.Visible = false;
         try
         {
-            var (_, runId) = await githubProvider.RunWorkflow(repositoryName, branchName, environmentName,
+            var runId = await githubProvider.RunWorkflow(repositoryName, branchName, workflow.Id,
                 payload, progress, ct);
 
             ((IProgress<string>)progress).Report(Strings.FetchingJobLabels);
@@ -179,7 +185,7 @@ public partial class Form1 : Form
         var repositoryName = cmbRepository.SelectedItem?.ToString();
         if (repositoryName is null) return;
 
-        SetUiBusy(Strings.LoadingBranchesAndEnvs);
+        SetUiBusy(Strings.LoadingRepositoryData);
         try
         {
             cmbBranch.Items.Clear();
@@ -188,11 +194,23 @@ public partial class Form1 : Form
                 cmbBranch.Items.Add(branch.Name);
             }
 
+            cmbWorkflow.Items.Clear();
+            var workflows = await githubProvider.GetWorkflows(repositoryName);
+            foreach (var wf in workflows)
+            {
+                cmbWorkflow.Items.Add(new WorkflowComboItem(wf));
+            }
+            if (cmbWorkflow.Items.Count > 0)
+                cmbWorkflow.SelectedIndex = 0;
+
             cmbEnvironment.Items.Clear();
             foreach (var env in await githubProvider.GetEnvironments(repositoryName))
             {
                 cmbEnvironment.Items.Add(env.Name);
             }
+            if (cmbEnvironment.Items.Count > 0)
+                cmbEnvironment.SelectedIndex = 0;
+
             cmbArtifact.Items.Clear();
             SetUiIdle(Strings.Ready);
         }
@@ -387,6 +405,7 @@ public partial class Form1 : Form
         btnCancel.Visible = true;
         cmbRepository.Enabled = false;
         cmbBranch.Enabled = false;
+        cmbWorkflow.Enabled = false;
         cmbEnvironment.Enabled = false;
         cmbPort.Enabled = false;
         chkUseArtifact.Enabled = false;
@@ -402,6 +421,7 @@ public partial class Form1 : Form
         btnCancel.Visible = false;
         cmbRepository.Enabled = true;
         cmbBranch.Enabled = true;
+        cmbWorkflow.Enabled = true;
         cmbEnvironment.Enabled = true;
         cmbPort.Enabled = true;
         chkUseArtifact.Enabled = true;
@@ -417,5 +437,10 @@ public partial class Form1 : Form
         public override string ToString() => IsLatest
             ? string.Format(Strings.ArtifactItemLatest, Info.RunId, Info.ShortSha, Info.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
             : string.Format(Strings.ArtifactItem, Info.RunId, Info.ShortSha, Info.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+    }
+
+    private sealed record WorkflowComboItem(IoTDeploy.WorkflowInfo Info)
+    {
+        public override string ToString() => Info.Name;
     }
 }

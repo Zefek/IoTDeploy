@@ -60,7 +60,7 @@ internal class Strings
     internal static string ErrorTitle => ResourceManager.GetString("ErrorTitle", resourceCulture)!;
     internal static string UnexpectedInitError => ResourceManager.GetString("UnexpectedInitError", resourceCulture)!;
     internal static string StartingDeploy => ResourceManager.GetString("StartingDeploy", resourceCulture)!;
-    internal static string LoadingBranchesAndEnvs => ResourceManager.GetString("LoadingBranchesAndEnvs", resourceCulture)!;
+    internal static string LoadingRepositoryData => ResourceManager.GetString("LoadingRepositoryData", resourceCulture)!;
     internal static string LoadErrorTitle => ResourceManager.GetString("LoadErrorTitle", resourceCulture)!;
     internal static string UnexpectedError => ResourceManager.GetString("UnexpectedError", resourceCulture)!;
     internal static string TimeoutTitle => ResourceManager.GetString("TimeoutTitle", resourceCulture)!;
@@ -78,6 +78,7 @@ internal class Strings
     // Form1.Designer.cs
     internal static string LabelRepository => ResourceManager.GetString("LabelRepository", resourceCulture)!;
     internal static string LabelBranch => ResourceManager.GetString("LabelBranch", resourceCulture)!;
+    internal static string LabelWorkflow => ResourceManager.GetString("LabelWorkflow", resourceCulture)!;
     internal static string LabelEnvironment => ResourceManager.GetString("LabelEnvironment", resourceCulture)!;
     internal static string ButtonDeploy => ResourceManager.GetString("ButtonDeploy", resourceCulture)!;
     internal static string ButtonCancel => ResourceManager.GetString("ButtonCancel", resourceCulture)!;

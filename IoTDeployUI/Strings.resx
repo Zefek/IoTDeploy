@@ -81,8 +81,8 @@ Place it in the application folder.</value>
   <data name="StartingDeploy" xml:space="preserve">
     <value>Starting deploy...</value>
   </data>
-  <data name="LoadingBranchesAndEnvs" xml:space="preserve">
-    <value>Loading branches and environments...</value>
+  <data name="LoadingRepositoryData" xml:space="preserve">
+    <value>Loading branches, workflows and environments...</value>
   </data>
   <data name="LoadErrorTitle" xml:space="preserve">
     <value>Loading error</value>
@@ -133,6 +133,9 @@ Check the device connection.</value>
   </data>
   <data name="LabelBranch" xml:space="preserve">
     <value>Branch</value>
+  </data>
+  <data name="LabelWorkflow" xml:space="preserve">
+    <value>Workflow</value>
   </data>
   <data name="LabelEnvironment" xml:space="preserve">
     <value>Environment</value>

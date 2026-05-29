@@ -47,17 +47,22 @@
 
 Usage:
   IoTDeploy.exe &lt;repository&gt; &lt;branch&gt; &lt;environment&gt; [&lt;port&gt;]
-                [--useartifact &lt;runId|latest&gt;] [--artifact-name &lt;name&gt;] [--workflow &lt;file&gt;]
+                [--workflow &lt;name|file&gt;]
+                [--useartifact &lt;runId|latest&gt;] [--artifact-name &lt;name&gt;]
 
 Examples:
-  IoTDeploy.exe MyFirmware main production COM3
-  IoTDeploy.exe MyApp main staging --useartifact latest
-  IoTDeploy.exe MyApp main staging --useartifact 12345 --artifact-name publish
+  IoTDeploy.exe MyFirmware main production COM3 --workflow deploy.yml
+  IoTDeploy.exe MyApp main staging --workflow deploy.yml --useartifact latest
+  IoTDeploy.exe MyApp main staging --workflow deploy.yml --useartifact 12345 --artifact-name publish
 
 Notes:
-  - &lt;port&gt; is optional. If provided, it's passed to the workflow as 'serial_port'.
+  - &lt;environment&gt; is passed to the workflow as input 'environment'.
+  - &lt;port&gt; is optional. If provided, it's passed to the workflow as input 'serial_port'.
+  - --workflow targets a specific workflow file. If omitted and the repo has only one workflow,
+    that one is used; if multiple workflows exist, --workflow is required.
   - --useartifact 'latest' resolves to the most recent successful run with a matching artifact
-    on the branch. The resolved run_id is sent as 'artifact_run_id' (and 'artifact_name').
+    on the branch. The resolved run_id is sent as input 'artifact_run_id' (and 'artifact_name').
+  - The target workflow must declare `on: workflow_dispatch:` with matching `inputs:`.
 
 Configuration:
   appsettings.json and .pem file must be in the same folder as the exe.</value>
@@ -91,7 +96,20 @@ Configuration:
     <value>Connecting to GitHub...</value>
   </data>
   <data name="DeployInfo" xml:space="preserve">
-    <value>Deploy: {0} / {1} → {2} on {3}</value>
+    <value>Deploy: {0} / {1} → workflow '{2}' (env {3}) on port {4}</value>
+  </data>
+  <data name="WorkflowsNotFound" xml:space="preserve">
+    <value>No workflows found in repository '{0}'.</value>
+  </data>
+  <data name="WorkflowAmbiguous" xml:space="preserve">
+    <value>Repository '{0}' has multiple workflows; --workflow is required. Available: {1}</value>
+  </data>
+  <data name="WorkflowNotFound" xml:space="preserve">
+    <value>Workflow '{0}' was not found in repository '{1}'. Available: {2}</value>
+  </data>
+  <data name="DispatchFailed" xml:space="preserve">
+    <value>Workflow dispatch failed: {0}
+The target workflow must declare `on: workflow_dispatch:` with matching `inputs:`.</value>
   </data>
   <data name="CancellingDeploy" xml:space="preserve">
     <value>Cancelling deploy (Ctrl+C)...</value>
