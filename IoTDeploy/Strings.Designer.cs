@@ -84,6 +84,7 @@ internal class Strings
 
     // GithubProvider.cs
     internal static string PemFileNotFound => ResourceManager.GetString("PemFileNotFound", resourceCulture)!;
+    internal static string PrivateKeyNotFound => ResourceManager.GetString("PrivateKeyNotFound", resourceCulture)!;
     internal static string CannotReadPrivateKey => ResourceManager.GetString("CannotReadPrivateKey", resourceCulture)!;
     internal static string AuthFailed => ResourceManager.GetString("AuthFailed", resourceCulture)!;
     internal static string InstallationNotFound => ResourceManager.GetString("InstallationNotFound", resourceCulture)!;

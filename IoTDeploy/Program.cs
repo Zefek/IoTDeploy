@@ -59,12 +59,12 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
-var githubProvider = new GithubProvider();
+var githubProvider = new GithubProvider(settings);
 var runner = new Runner(Guid.NewGuid().ToString("N"));
 try
 {
     Console.WriteLine(Strings.ConnectingToGitHub);
-    await githubProvider.Init(settings);
+    await githubProvider.Init();
 
     var workflows = await githubProvider.GetWorkflows(cli.Repo);
     if (workflows.Count == 0)

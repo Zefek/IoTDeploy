@@ -124,6 +124,9 @@ Placez-le dans le dossier de l'application.</value>
     <value>Fichier de clé privée de GitHub App introuvable (motif : '{0}').
 Placez le fichier dans le dossier de l'application ou mettez à jour PemFilePattern dans appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Clé privée de GitHub App introuvable.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Impossible de lire la clé privée :
 {0}

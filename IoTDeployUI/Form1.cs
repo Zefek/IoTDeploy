@@ -19,7 +19,7 @@ public partial class Form1 : Form
         InitializeComponent();
         this.settings = settings;
         _logPath = logPath;
-        githubProvider = new GithubProvider();
+        githubProvider = new GithubProvider(settings);
     }
 
     private void label1_Click(object sender, EventArgs e)
@@ -31,9 +31,9 @@ public partial class Form1 : Form
         SetUiBusy(Strings.ConnectingToGitHub);
         try
         {
-            await githubProvider.Init(settings);
+            await githubProvider.Init();
             cmbRepository.Items.Clear();
-            foreach (var repo in await githubProvider.GetRepositories())
+            foreach (var repo in (await githubProvider.GetRepositories()).OrderBy(k => k.Name))
             {
                 cmbRepository.Items.Add(repo.Name);
             }
@@ -189,14 +189,14 @@ public partial class Form1 : Form
         try
         {
             cmbBranch.Items.Clear();
-            foreach (var branch in await githubProvider.GetBranches(repositoryName))
+            foreach (var branch in (await githubProvider.GetBranches(repositoryName)).OrderBy(k => k.Name))
             {
                 cmbBranch.Items.Add(branch.Name);
             }
 
             cmbWorkflow.Items.Clear();
             var workflows = await githubProvider.GetWorkflows(repositoryName);
-            foreach (var wf in workflows)
+            foreach (var wf in workflows.OrderBy(k => k.Name))
             {
                 cmbWorkflow.Items.Add(new WorkflowComboItem(wf));
             }
@@ -204,7 +204,7 @@ public partial class Form1 : Form
                 cmbWorkflow.SelectedIndex = 0;
 
             cmbEnvironment.Items.Clear();
-            foreach (var env in await githubProvider.GetEnvironments(repositoryName))
+            foreach (var env in (await githubProvider.GetEnvironments(repositoryName)).OrderBy(k => k.Name))
             {
                 cmbEnvironment.Items.Add(env.Name);
             }

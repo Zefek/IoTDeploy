@@ -124,6 +124,9 @@ Umiestnite ho do priečinka aplikácie.</value>
     <value>Súbor privátneho kľúča GitHub App nebol nájdený (vzor: '{0}').
 Umiestnite súbor do priečinka aplikácie alebo upravte PemFilePattern v appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Privátny kľúč GitHub App nebol nájdený.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Nie je možné načítať privátny kľúč:
 {0}

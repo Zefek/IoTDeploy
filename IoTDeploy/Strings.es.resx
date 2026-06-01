@@ -124,6 +124,9 @@ Colóquelo en la carpeta de la aplicación.</value>
     <value>Archivo de clave privada de GitHub App no encontrado (patrón: '{0}').
 Coloque el archivo en la carpeta de la aplicación o actualice PemFilePattern en appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Clave privada de GitHub App no encontrada.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>No se puede leer la clave privada:
 {0}

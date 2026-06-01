@@ -171,6 +171,9 @@ Place it in the application folder.</value>
     <value>GitHub App private key file not found (pattern: '{0}').
 Place the file in the application folder or update PemFilePattern in appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>GitHub App private key not found.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Cannot read private key:
 {0}

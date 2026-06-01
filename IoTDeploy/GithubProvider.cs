@@ -29,27 +29,23 @@ public record WorkflowInfo(long Id, string Name, string Path);
 public class GithubProvider
 {
     private static readonly ILogger Logger = Log.ForContext<GithubProvider>();
-
-    private GitHubClient gitHubClient;
-    private string _appId;
-    private long _installationId;
-    private string _owner;
-    private int _workflowTimeoutMinutes;
-    private string _pemKeyPath;
+    private readonly AppSettings settings;
+    private GitHubClient? gitHubClient;
     private AccessToken? _installationAccessToken;
+    private string? _pemKeyPath;
 
-    public GithubProvider()
+    private GitHubClient Client =>
+        gitHubClient ?? throw new InvalidOperationException("GitHub klient není inicializován. Nejprve zavolejte Init().");
+
+    public GithubProvider(AppSettings settings)
     {
+        this.settings = settings;
     }
 
-    public async Task Init(AppSettings settings)
+    public async Task Init()
     {
-        _appId = settings.GitHub.AppId;
-        _installationId = settings.GitHub.InstallationId;
-        _owner = settings.GitHub.Owner;
-        _workflowTimeoutMinutes = settings.Runner.WorkflowTimeoutMinutes;
+        Logger.Information("Inicializuji GitHub App klienta (AppId={AppId}, Owner={Owner})", settings.GitHub.AppId, settings.GitHub.Owner);
         _pemKeyPath = FindPemFile(settings.GitHub.PemFilePattern);
-        Logger.Information("Inicializuji GitHub App klienta (AppId={AppId}, Owner={Owner})", _appId, _owner);
         gitHubClient = await CreateInstallationClient();
         Logger.Information("GitHub klient úspěšně inicializován");
     }
@@ -65,6 +61,10 @@ public class GithubProvider
     private async Task<GitHubClient> CreateInstallationClient()
     {
         string pemContent;
+        if (string.IsNullOrEmpty(_pemKeyPath))
+        {
+            throw new InvalidOperationException(Strings.PrivateKeyNotFound);
+        }
         try
         {
             pemContent = File.ReadAllText(_pemKeyPath);
@@ -78,14 +78,19 @@ public class GithubProvider
         {
             using var rsa = RSA.Create();
             rsa.ImportFromPem(pemContent);
-            var jwt = GenerateJwt(_appId, rsa);
+            var jwt = GenerateJwt(settings.GitHub.AppId, rsa);
 
             var jwtClient = new GitHubClient(new ProductHeaderValue("IoTDeploy"))
             {
                 Credentials = new Credentials(jwt, AuthenticationType.Bearer)
             };
 
-            _installationAccessToken = await jwtClient.GitHubApps.CreateInstallationToken(_installationId);
+            _installationAccessToken = await jwtClient.GitHubApps.CreateInstallationToken(settings.GitHub.InstallationId);
+
+            return new GitHubClient(new ProductHeaderValue("IoTDeploy"))
+            {
+                Credentials = new Credentials(_installationAccessToken.Token)
+            };
         }
         catch (AuthorizationException)
         {
@@ -93,13 +98,8 @@ public class GithubProvider
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException(string.Format(Strings.InstallationNotFound, _installationId));
+            throw new InvalidOperationException(string.Format(Strings.InstallationNotFound, settings.GitHub.InstallationId));
         }
-
-        return new GitHubClient(new ProductHeaderValue("IoTDeploy"))
-        {
-            Credentials = new Credentials(_installationAccessToken.Token)
-        };
     }
 
     private string GenerateJwt(string appId, RSA rsaKey)
@@ -123,7 +123,7 @@ public class GithubProvider
 
     private async Task EnsureValidTokenAsync()
     {
-        if (_installationAccessToken == null ||
+        if (gitHubClient == null || _installationAccessToken == null ||
             DateTimeOffset.UtcNow >= _installationAccessToken.ExpiresAt.AddMinutes(-5))
         {
             Logger.Debug("Obnovuji installation access token (vyprší {ExpiresAt})", _installationAccessToken?.ExpiresAt);
@@ -135,7 +135,7 @@ public class GithubProvider
     public async Task<IReadOnlyList<Repository>> GetRepositories()
     {
         await EnsureValidTokenAsync();
-        var result = await gitHubClient.GitHubApps.Installation.GetAllRepositoriesForCurrent();
+        var result = await Client.GitHubApps.Installation.GetAllRepositoriesForCurrent();
         return result.Repositories;
     }
 
@@ -144,7 +144,7 @@ public class GithubProvider
         await EnsureValidTokenAsync();
         try
         {
-            return await gitHubClient.Repository.Branch.GetAll(_owner, repository);
+            return (await Client.Repository.Branch.GetAll(settings.GitHub.Owner, repository));
         }
         catch (NotFoundException)
         {
@@ -155,7 +155,7 @@ public class GithubProvider
     public async Task<IReadOnlyList<DeploymentEnvironment>> GetEnvironments(string repository)
     {
         await EnsureValidTokenAsync();
-        return (await gitHubClient.Repository.Environment.GetAll(_owner, repository)).Environments;
+        return (await Client.Repository.Environment.GetAll(settings.GitHub.Owner, repository)).Environments;
     }
 
     public async Task<IReadOnlyList<WorkflowInfo>> GetWorkflows(string repository)
@@ -163,7 +163,7 @@ public class GithubProvider
         await EnsureValidTokenAsync();
         try
         {
-            var response = await gitHubClient.Actions.Workflows.List(_owner, repository);
+            var response = await Client.Actions.Workflows.List(settings.GitHub.Owner, repository);
             return response.Workflows
                 .Where(w => string.Equals(w.State.StringValue, "active", StringComparison.OrdinalIgnoreCase))
                 .Select(w => new WorkflowInfo(w.Id, w.Name, w.Path))
@@ -188,7 +188,7 @@ public class GithubProvider
                 Inputs = parameters.ToDictionary(kv => kv.Key, kv => (object)kv.Value)
             };
 
-            await gitHubClient.Actions.Workflows.CreateDispatch(_owner, repository, workflowId, dispatch);
+            await Client.Actions.Workflows.CreateDispatch(settings.GitHub.Owner, repository, workflowId, dispatch);
         }
         catch (NotFoundException)
         {
@@ -211,30 +211,31 @@ public class GithubProvider
 
     private async Task<WorkflowRun> WaitForQueuedRunAsync(string repository, long workflowId, DateTimeOffset createdAfter, IProgress<string> progress, CancellationToken ct = default)
     {
-        var deadline = DateTimeOffset.UtcNow.AddMinutes(_workflowTimeoutMinutes);
+        var deadline = DateTimeOffset.UtcNow.AddMinutes(settings.Runner.WorkflowTimeoutMinutes);
         var attempt = 0;
-        Logger.Debug("Čekám na workflow run v repo={Repo}, workflow={WorkflowId} (timeout={Timeout}min)", repository, workflowId, _workflowTimeoutMinutes);
+        Logger.Debug("Čekám na workflow run v repo={Repo}, workflow={WorkflowId} (timeout={Timeout}min)", repository, workflowId, settings.Runner.WorkflowTimeoutMinutes);
         while (DateTimeOffset.UtcNow < deadline)
         {
             await Task.Delay(3000, ct);
             attempt++;
             progress.Report(string.Format(Strings.WaitingForWorkflow, attempt * 3));
-            var runs = await gitHubClient.Actions.Workflows.Runs.ListByWorkflow(
-                _owner, repository, workflowId);
+            await EnsureValidTokenAsync();
+            var runs = await Client.Actions.Workflows.Runs.ListByWorkflow(
+                settings.GitHub.Owner, repository, workflowId);
 
             var run = runs.WorkflowRuns.FirstOrDefault(r =>
                 r.CreatedAt >= createdAfter &&
                 r.Status.StringValue != "completed");
             if (run != null) return run;
         }
-        Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, workflow={WorkflowId}, timeout={Timeout}min)", repository, workflowId, _workflowTimeoutMinutes);
-        throw new TimeoutException(string.Format(Strings.WorkflowTimeout, _workflowTimeoutMinutes));
+        Logger.Warning("Timeout při čekání na workflow run (repo={Repo}, workflow={WorkflowId}, timeout={Timeout}min)", repository, workflowId, settings.Runner.WorkflowTimeoutMinutes);
+        throw new TimeoutException(string.Format(Strings.WorkflowTimeout, settings.Runner.WorkflowTimeoutMinutes));
     }
 
     public async Task<IReadOnlyList<string>> GetQueuedJobLabelsAsync(string repository, long runId, CancellationToken ct = default)
     {
         await EnsureValidTokenAsync();
-        var jobs = await gitHubClient.Actions.Workflows.Jobs.List(_owner, repository, runId);
+        var jobs = await Client.Actions.Workflows.Jobs.List(settings.GitHub.Owner, repository, runId);
         var job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "queued")
                ?? jobs.Jobs.FirstOrDefault();
         if (job == null)
@@ -247,7 +248,7 @@ public class GithubProvider
         await EnsureValidTokenAsync();
         try
         {
-            return await gitHubClient.Actions.SelfHostedRunners.CreateRepositoryRegistrationToken(_owner, repository);
+            return await Client.Actions.SelfHostedRunners.CreateRepositoryRegistrationToken(settings.GitHub.Owner, repository);
         }
         catch (NotFoundException)
         {
@@ -271,8 +272,8 @@ public class GithubProvider
         try
         {
             runs = string.IsNullOrEmpty(workflowName)
-                ? await gitHubClient.Actions.Workflows.Runs.List(_owner, repository, request, options)
-                : await gitHubClient.Actions.Workflows.Runs.ListByWorkflow(_owner, repository, workflowName, request, options);
+                ? await Client.Actions.Workflows.Runs.List(settings.GitHub.Owner, repository, request, options)
+                : await Client.Actions.Workflows.Runs.ListByWorkflow(settings.GitHub.Owner, repository, workflowName, request, options);
         }
         catch (NotFoundException)
         {
@@ -288,7 +289,7 @@ public class GithubProvider
             ListArtifactsResponse artifacts;
             try
             {
-                artifacts = await gitHubClient.Actions.Artifacts.ListWorkflowArtifacts(_owner, repository, run.Id);
+                artifacts = await Client.Actions.Artifacts.ListWorkflowArtifacts(settings.GitHub.Owner, repository, run.Id);
             }
             catch (Exception ex)
             {
@@ -321,13 +322,13 @@ public class GithubProvider
     public async Task<WorkflowProgress?> GetWorkflowProgressAsync(string repository, long runId)
     {
         await EnsureValidTokenAsync();
-        var run = await gitHubClient.Actions.Workflows.Runs.Get(_owner, repository, runId);
+        var run = await Client.Actions.Workflows.Runs.Get(settings.GitHub.Owner, repository, runId);
         var isCompleted = run.Status.StringValue == "completed";
         var conclusion = isCompleted ? (run.Conclusion?.StringValue ?? "unknown") : null;
 
         try
         {
-            var jobs = await gitHubClient.Actions.Workflows.Jobs.List(_owner, repository, runId);
+            var jobs = await Client.Actions.Workflows.Jobs.List(settings.GitHub.Owner, repository, runId);
             var job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "in_progress")
                 ?? jobs.Jobs.LastOrDefault();
 
