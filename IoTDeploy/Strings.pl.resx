@@ -124,6 +124,9 @@ Umieść go w folderze aplikacji.</value>
     <value>Nie znaleziono pliku klucza prywatnego GitHub App (wzorzec: '{0}').
 Umieść plik w folderze aplikacji lub zaktualizuj PemFilePattern w appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Nie znaleziono klucza prywatnego GitHub App.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Nie można odczytać klucza prywatnego:
 {0}

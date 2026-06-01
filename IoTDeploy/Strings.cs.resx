@@ -166,6 +166,9 @@ Umístěte ho do složky aplikace.</value>
     <value>Nenalezen soubor privátního klíče GitHub App (pattern: '{0}').
 Umístěte soubor do složky aplikace nebo upravte PemFilePattern v appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Privátní klíč GitHub App nebyl nalezen.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Nelze načíst privátní klíč:
 {0}

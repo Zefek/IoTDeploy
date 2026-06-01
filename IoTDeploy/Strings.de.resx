@@ -124,6 +124,9 @@ Legen Sie sie im Anwendungsordner ab.</value>
     <value>Private-Key-Datei der GitHub App nicht gefunden (Muster: '{0}').
 Legen Sie die Datei im Anwendungsordner ab oder aktualisieren Sie PemFilePattern in appsettings.json.</value>
   </data>
+  <data name="PrivateKeyNotFound" xml:space="preserve">
+    <value>Privater Schlüssel der GitHub App nicht gefunden.</value>
+  </data>
   <data name="CannotReadPrivateKey" xml:space="preserve">
     <value>Privater Schlüssel kann nicht gelesen werden:
 {0}
