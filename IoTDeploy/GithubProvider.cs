@@ -234,12 +234,25 @@ public class GithubProvider
 
     public async Task<IReadOnlyList<string>> GetQueuedJobLabelsAsync(string repository, long runId, CancellationToken ct = default)
     {
-        await EnsureValidTokenAsync();
-        var jobs = await Client.Actions.Workflows.Jobs.List(settings.GitHub.Owner, repository, runId);
-        var job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "queued")
-               ?? jobs.Jobs.FirstOrDefault();
+        int count = 0;
+        WorkflowJob? job = null;
+        do
+        {
+            await EnsureValidTokenAsync();
+            var jobs = await Client.Actions.Workflows.Jobs.List(settings.GitHub.Owner, repository, runId);
+            job = jobs.Jobs.FirstOrDefault(j => j.Status.StringValue == "queued")
+                   ?? jobs.Jobs.FirstOrDefault();
+            if (job != null)
+            {
+                break; 
+            }
+            await Task.Delay(5000, ct);
+            count++;
+        } while (count < 5);
         if (job == null)
+        {
             throw new InvalidOperationException(string.Format(Strings.NoJobsInRun, runId));
+        }
         return job.Labels ?? (IReadOnlyList<string>)Array.Empty<string>();
     }
 
