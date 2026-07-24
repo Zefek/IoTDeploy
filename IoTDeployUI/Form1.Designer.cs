@@ -65,7 +65,6 @@ partial class Form1
         label1.Size = new Size(97, 25);
         label1.TabIndex = 1;
         label1.Text = Strings.LabelRepository;
-        label1.Click += label1_Click;
         //
         // label2
         //

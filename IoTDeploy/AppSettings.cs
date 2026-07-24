@@ -31,4 +31,6 @@ public class GitHubSettings
 public class RunnerSettings
 {
     public int WorkflowTimeoutMinutes { get; set; } = 2;
+    public string RunnerReleasesApiUrl { get; set; } = "https://api.github.com/repos/actions/runner/releases/latest";
+    public string ArduinoReleasesApiUrl { get; set; } = "https://api.github.com/repos/arduino/arduino-cli/releases/latest";
 }
