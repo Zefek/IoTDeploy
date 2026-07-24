@@ -141,7 +141,7 @@ public partial class Form1 : Form
             try { await monitorTask; } catch (OperationCanceledException) { Logger.Debug("Monitorovací úloha ukončena"); }
 
             // Check final workflow conclusion
-            var conclusion = await GetFinalConclusionAsync(repositoryName, runId);
+            var conclusion = await GetFinalConclusionAsync(repositoryName, runId, ct);
             Logger.Information("Deploy dokončen: {Conclusion}", conclusion);
             ShowDeployResult(conclusion);
         }
@@ -358,7 +358,7 @@ public partial class Form1 : Form
         }
     }
 
-    private async Task<string> GetFinalConclusionAsync(string repository, long runId)
+    private async Task<string> GetFinalConclusionAsync(string repository, long runId, CancellationToken ct)
     {
         // Poll a few times to get the final conclusion (workflow might finish shortly after runner exits)
         for (var i = 0; i < 6; i++)
@@ -373,7 +373,7 @@ public partial class Form1 : Form
             {
                 Logger.Debug(ex, "Nepodařilo se načíst výsledek workflow");
             }
-            await Task.Delay(3000);
+            await Task.Delay(3000, ct);
         }
         return "unknown";
     }
