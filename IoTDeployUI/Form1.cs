@@ -22,10 +22,6 @@ public partial class Form1 : Form
         githubProvider = new GithubProvider(settings);
     }
 
-    private void label1_Click(object sender, EventArgs e)
-    {
-    }
-
     private async void Form1_Load(object sender, EventArgs e)
     {
         SetUiBusy(Strings.ConnectingToGitHub);
@@ -112,7 +108,7 @@ public partial class Form1 : Form
 
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
-        var runner = new IoTDeploy.Runner(Guid.NewGuid().ToString("N"));
+        var runner = new IoTDeploy.Runner(Guid.NewGuid().ToString("N"), settings);
 
         SetUiBusy(Strings.StartingDeploy);
         lblResult.Visible = false;
@@ -128,7 +124,8 @@ public partial class Form1 : Form
             var token = await githubProvider.GetTokenForRunner(repositoryName);
             await runner.Download(progress, ct);
             await runner.Config(settings.GitHub.Owner, repositoryName, token.Token, requiredLabels.ToArray(), progress, ct);
-            await runner.DownloadTools(progress, ct);
+            IReadOnlyList<IoTDeploy.IPrerequisite> prerequisites = [new IoTDeploy.ArduinoCliPrerequisite(settings)];
+            await runner.Provision(prerequisites, progress, ct);
 
             // Switch progress bar to continuous mode for step tracking
             progressBar.Style = ProgressBarStyle.Continuous;
@@ -140,11 +137,11 @@ public partial class Form1 : Form
 
             // Run the self-hosted runner (blocks until workflow job completes)
             await runner.Run(progress, ct);
-            monitorCts.Cancel();
-            try { await monitorTask; } catch (OperationCanceledException) { }
+            await monitorCts.CancelAsync();
+            try { await monitorTask; } catch (OperationCanceledException) { Logger.Debug("Monitorovací úloha ukončena"); }
 
             // Check final workflow conclusion
-            var conclusion = await GetFinalConclusionAsync(repositoryName, runId);
+            var conclusion = await GetFinalConclusionAsync(repositoryName, runId, ct);
             Logger.Information("Deploy dokončen: {Conclusion}", conclusion);
             ShowDeployResult(conclusion);
         }
@@ -309,7 +306,8 @@ public partial class Form1 : Form
             return;
         }
 
-        System.Diagnostics.Process.Start("notepad.exe", todayLog);
+        var notepadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "notepad.exe");
+        System.Diagnostics.Process.Start(notepadPath, todayLog);
     }
 
     private void RefreshComPorts()
@@ -360,7 +358,7 @@ public partial class Form1 : Form
         }
     }
 
-    private async Task<string> GetFinalConclusionAsync(string repository, long runId)
+    private async Task<string> GetFinalConclusionAsync(string repository, long runId, CancellationToken ct)
     {
         // Poll a few times to get the final conclusion (workflow might finish shortly after runner exits)
         for (var i = 0; i < 6; i++)
@@ -371,8 +369,11 @@ public partial class Form1 : Form
                 if (progress is { IsCompleted: true, Conclusion: not null })
                     return progress.Conclusion;
             }
-            catch { }
-            await Task.Delay(3000);
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "Nepodařilo se načíst výsledek workflow");
+            }
+            await Task.Delay(3000, ct);
         }
         return "unknown";
     }

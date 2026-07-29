@@ -15,9 +15,9 @@ try
 }
 catch (ArgumentException ex)
 {
-    Console.Error.WriteLine(ex.Message);
-    Console.Error.WriteLine();
-    Console.Error.WriteLine(Strings.Usage);
+    await Console.Error.WriteLineAsync(ex.Message);
+    await Console.Error.WriteLineAsync();
+    await Console.Error.WriteLineAsync(Strings.Usage);
     return 1;
 }
 
@@ -28,15 +28,15 @@ try
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine(string.Format(Strings.ErrorConfiguration, ex.Message));
+    await Console.Error.WriteLineAsync(string.Format(Strings.ErrorConfiguration, ex.Message));
     return 1;
 }
 
 var configErrors = settings.Validate().ToList();
 if (configErrors.Count > 0)
 {
-    Console.Error.WriteLine(Strings.InvalidConfiguration);
-    foreach (var e in configErrors) Console.Error.WriteLine($"  • {e}");
+    await Console.Error.WriteLineAsync(Strings.InvalidConfiguration);
+    foreach (var e in configErrors) await Console.Error.WriteLineAsync($"  • {e}");
     return 1;
 }
 
@@ -50,7 +50,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var progress = new Progress<string>(msg => Console.WriteLine($"  {msg}"));
-var cts = new CancellationTokenSource();
+using var cts = new CancellationTokenSource();
 
 Console.CancelKeyPress += (_, e) =>
 {
@@ -60,131 +60,12 @@ Console.CancelKeyPress += (_, e) =>
 };
 
 var githubProvider = new GithubProvider(settings);
-var runner = new Runner(Guid.NewGuid().ToString("N"));
+var runner = new Runner(Guid.NewGuid().ToString("N"), settings);
+IReadOnlyList<IPrerequisite> prerequisites = [new ArduinoCliPrerequisite(settings)];
+var deployer = new Deployer(settings, githubProvider, runner, progress, prerequisites);
 try
 {
-    Console.WriteLine(Strings.ConnectingToGitHub);
-    await githubProvider.Init();
-
-    var workflows = await githubProvider.GetWorkflows(cli.Repo);
-    if (workflows.Count == 0)
-        throw new InvalidOperationException(string.Format(Strings.WorkflowsNotFound, cli.Repo));
-
-    WorkflowInfo selectedWorkflow;
-    if (string.IsNullOrEmpty(cli.WorkflowName))
-    {
-        if (workflows.Count > 1)
-            throw new InvalidOperationException(string.Format(Strings.WorkflowAmbiguous,
-                cli.Repo, string.Join(", ", workflows.Select(w => w.Name))));
-        selectedWorkflow = workflows[0];
-    }
-    else
-    {
-        selectedWorkflow = workflows.FirstOrDefault(w =>
-            string.Equals(w.Name, cli.WorkflowName, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(System.IO.Path.GetFileName(w.Path), cli.WorkflowName, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(w.Path, cli.WorkflowName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new InvalidOperationException(string.Format(Strings.WorkflowNotFound,
-                cli.WorkflowName, cli.Repo, string.Join(", ", workflows.Select(w => w.Name))));
-    }
-
-    Console.WriteLine(string.Format(Strings.DeployInfo, cli.Repo, cli.Branch, selectedWorkflow.Name, cli.Env, cli.Port ?? "-"));
-
-    var payload = new Dictionary<string, string>
-    {
-        ["environment"] = cli.Env
-    };
-    if (!string.IsNullOrEmpty(cli.Port))
-        payload["serial_port"] = cli.Port;
-
-    if (!string.IsNullOrEmpty(cli.UseArtifact))
-    {
-        if (string.Equals(cli.UseArtifact, "latest", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine(string.Format(Strings.ResolvingLatestArtifact, cli.Branch));
-            var info = await githubProvider.ResolveLatestArtifactAsync(
-                cli.Repo, cli.Branch, cli.ArtifactName, null, cts.Token);
-            Console.WriteLine(string.Format(Strings.ResolvedLatestArtifact,
-                info.RunId, info.ShortSha, info.CreatedAt, info.ArtifactName));
-            payload["artifact_run_id"] = info.RunId.ToString();
-            payload["artifact_name"] = info.ArtifactName;
-        }
-        else
-        {
-            payload["artifact_run_id"] = cli.UseArtifact;
-            if (!string.IsNullOrEmpty(cli.ArtifactName))
-                payload["artifact_name"] = cli.ArtifactName;
-        }
-    }
-
-    var runId = await githubProvider.RunWorkflow(cli.Repo, cli.Branch, selectedWorkflow.Id, payload, progress, cts.Token);
-
-    Console.WriteLine(Strings.FetchingJobLabels);
-    var requiredLabels = await githubProvider.GetQueuedJobLabelsAsync(cli.Repo, runId, cts.Token);
-    Console.WriteLine(string.Format(Strings.RequiredLabels, string.Join(", ", requiredLabels)));
-
-    var token = await githubProvider.GetTokenForRunner(cli.Repo);
-    await runner.Download(progress, cts.Token);
-    await runner.Config(settings.GitHub.Owner, cli.Repo, token.Token, requiredLabels.ToArray(), progress, cts.Token);
-    await runner.DownloadTools(progress, cts.Token);
-
-    // Start monitoring workflow progress in background
-    var lastStepName = "";
-    using var monitorCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token);
-    var monitorTask = Task.Run(async () =>
-    {
-        await Task.Delay(3000, monitorCts.Token);
-        while (!monitorCts.Token.IsCancellationRequested)
-        {
-            try
-            {
-                var wp = await githubProvider.GetWorkflowProgressAsync(cli.Repo, runId);
-                if (wp != null && wp.TotalSteps > 0)
-                {
-                    var stepName = wp.CurrentStepName;
-                    if (!string.IsNullOrEmpty(stepName) && stepName != lastStepName)
-                    {
-                        lastStepName = stepName;
-                        Console.WriteLine($"  [{wp.CompletedSteps}/{wp.TotalSteps}] {wp.JobName}: {stepName}");
-                    }
-                }
-                if (wp is { IsCompleted: true }) return;
-            }
-            catch { }
-            await Task.Delay(5000, monitorCts.Token);
-        }
-    }, monitorCts.Token);
-
-    await runner.Run(progress, cts.Token);
-    monitorCts.Cancel();
-    try { await monitorTask; } catch (OperationCanceledException) { }
-
-    // Check final workflow conclusion
-    for (var i = 0; i < 6; i++)
-    {
-        try
-        {
-            var wp = await githubProvider.GetWorkflowProgressAsync(cli.Repo, runId);
-            if (wp is { IsCompleted: true, Conclusion: not null })
-            {
-                if (wp.Conclusion == "success")
-                {
-                    Console.WriteLine(Strings.DeploySuccess);
-                    return 0;
-                }
-                else
-                {
-                    Console.Error.WriteLine(string.Format(Strings.DeployFailed, wp.Conclusion));
-                    return 1;
-                }
-            }
-        }
-        catch { }
-        await Task.Delay(3000);
-    }
-
-    Console.WriteLine(Strings.DeployUnknown);
-    return 0;
+    return await deployer.RunAsync(cli, cts.Token);
 }
 catch (OperationCanceledException)
 {
@@ -193,19 +74,19 @@ catch (OperationCanceledException)
 }
 catch (TimeoutException ex)
 {
-    Console.Error.WriteLine(string.Format(Strings.TimeoutError, ex.Message));
+    await Console.Error.WriteLineAsync(string.Format(Strings.TimeoutError, ex.Message));
     return 1;
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine(string.Format(Strings.DeployError, ex.Message));
+    await Console.Error.WriteLineAsync(string.Format(Strings.DeployError, ex.Message));
     Log.Error(ex, "Deploy error");
     return 1;
 }
 finally
 {
     runner.Delete();
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }
 
 static AppSettings LoadSettings()
@@ -269,12 +150,3 @@ static string RequireValue(string[] args, ref int i, string flag)
         throw new ArgumentException(string.Format(Strings.MissingFlagValue, flag));
     return args[++i];
 }
-
-internal record CliArgs(
-    string Repo,
-    string Branch,
-    string Env,
-    string? Port,
-    string? UseArtifact,
-    string? ArtifactName,
-    string? WorkflowName);

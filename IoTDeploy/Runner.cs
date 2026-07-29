@@ -11,10 +11,13 @@ public class Runner
 
     private readonly string _name;
     private readonly string _runnerDir;
+    private readonly AppSettings _settings;
+    private string[] _labels = [];
 
-    public Runner(string name)
+    public Runner(string name, AppSettings settings)
     {
         _name = name;
+        _settings = settings;
         _runnerDir = Path.Combine(AppContext.BaseDirectory, "runners", name);
     }
 
@@ -27,7 +30,7 @@ public class Runner
         http.DefaultRequestHeaders.UserAgent.ParseAdd("IoTDeploy");
 
         progress.Report(Strings.CheckingRunnerVersion);
-        var json = await WithRetryAsync(() => http.GetStringAsync("https://api.github.com/repos/actions/runner/releases/latest", ct), ct);
+        var json = await HttpRetry.ExecuteAsync(() => http.GetStringAsync(_settings.Runner.RunnerReleasesApiUrl, ct), ct);
         using var doc = JsonDocument.Parse(json);
         var tag = doc.RootElement.GetProperty("tag_name").GetString()!;
         var version = tag.TrimStart('v');
@@ -40,7 +43,7 @@ public class Runner
             progress.Report(string.Format(Strings.DownloadingRunner, version));
             Logger.Information("Stahuji runner {Version}", version);
             var url = $"https://github.com/actions/runner/releases/download/{tag}/{zipName}";
-            using var stream = await WithRetryAsync(() => http.GetStreamAsync(url, ct), ct);
+            using var stream = await HttpRetry.ExecuteAsync(() => http.GetStreamAsync(url, ct), ct);
             using var fileStream = File.Create(zipPath);
             await stream.CopyToAsync(fileStream, ct);
 
@@ -61,12 +64,13 @@ public class Runner
         if (Directory.Exists(_runnerDir))
             DeleteDirectory(_runnerDir);
         Directory.CreateDirectory(_runnerDir);
-        ZipFile.ExtractToDirectory(zipPath, _runnerDir);
+        await ZipFile.ExtractToDirectoryAsync(zipPath, _runnerDir, ct);
     }
 
     public async Task Config(string owner, string repository, string token, string[] labels, IProgress<string> progress, CancellationToken ct = default)
     {
         progress.Report(Strings.ConfiguringRunner);
+        _labels = labels;
         var path = Path.Combine(_runnerDir, "config.cmd");
         var labelList = string.Join(",", labels);
         var args = $"--url https://github.com/{owner}/{repository} --name {_name} --labels {labelList} --ephemeral --unattended";
@@ -74,67 +78,13 @@ public class Runner
         await RunProcessAsync(path, args, _runnerDir, progress, Strings.RunnerConfigFailed, ct, envVars);
     }
 
-    public async Task DownloadTools(IProgress<string> progress, CancellationToken ct = default)
+    public async Task Provision(IEnumerable<IPrerequisite> prerequisites, IProgress<string> progress, CancellationToken ct = default)
     {
-        var runnersDir = Path.Combine(AppContext.BaseDirectory, "runners");
-
-        using var http = new HttpClient();
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("IoTDeploy");
-
-        progress.Report(Strings.CheckingArduinoVersion);
-        var json = await WithRetryAsync(() => http.GetStringAsync("https://api.github.com/repos/arduino/arduino-cli/releases/latest", ct), ct);
-        using var doc = JsonDocument.Parse(json);
-        var tag = doc.RootElement.GetProperty("tag_name").GetString()!;
-        var version = tag.TrimStart('v');
-
-        var zipName = $"arduino-cli_{version}_Windows_64bit.zip";
-        var zipPath = Path.Combine(runnersDir, zipName);
-
-        if (!File.Exists(zipPath))
+        foreach (var prerequisite in prerequisites.Where(p => _labels.Contains(p.Label, StringComparer.OrdinalIgnoreCase)))
         {
-            progress.Report(string.Format(Strings.DownloadingArduino, version));
-            var assets = doc.RootElement.GetProperty("assets");
-            var asset = assets.EnumerateArray().First(a => a.GetProperty("name").GetString() == zipName);
-            var url = asset.GetProperty("browser_download_url").GetString()!;
-
-            using var stream = await WithRetryAsync(() => http.GetStreamAsync(url, ct), ct);
-            using var fileStream = File.Create(zipPath);
-            await stream.CopyToAsync(fileStream, ct);
-
-            foreach (var old in Directory.GetFiles(runnersDir, "arduino-cli_*_Windows_64bit.zip")
-                .Where(f => f != zipPath))
-            {
-                File.Delete(old);
-            }
+            Logger.Debug("Naseeduji prerekvizitu {Label} dle labelů runneru", prerequisite.Label);
+            await prerequisite.ProvisionAsync(_runnerDir, progress, ct);
         }
-        else
-        {
-            progress.Report(string.Format(Strings.ArduinoAlreadyDownloaded, version));
-        }
-
-        progress.Report(Strings.ExtractingArduino);
-        var extractPath = Path.Combine(_runnerDir, "_work", "_tool", "arduino-cli");
-        var arduinoCachePath = Path.Combine(AppContext.BaseDirectory, "arduino_cache");
-        if (Directory.Exists(extractPath))
-            DeleteDirectory(extractPath);
-        Directory.CreateDirectory(extractPath);
-        ZipFile.ExtractToDirectory(zipPath, extractPath);
-        if(!Directory.Exists(arduinoCachePath))
-            Directory.CreateDirectory(arduinoCachePath);
-
-        var configContent =
-            $"""
-            directories:
-              data: '{arduinoCachePath}\\data'
-              downloads: '{arduinoCachePath}\\downloads'
-              libraries: '{arduinoCachePath}\\libraries'
-              user: '{extractPath}\\user'
-              builtin:
-                libraries: '{arduinoCachePath}\\builtin.libraries'
-            library:
-              enable_unsafe_install: true
-            """;
-        await File.WriteAllTextAsync(Path.Combine(extractPath, "config.yaml"), configContent);
     }
 
     public async Task Run(IProgress<string> progress, CancellationToken ct = default)
@@ -163,7 +113,7 @@ public class Runner
             foreach (var (key, value) in envVars)
                 p.StartInfo.Environment[key] = value;
 
-        ct.Register(() => { try { if (!p.HasExited) p.Kill(entireProcessTree: true); } catch { } });
+        ct.Register(() => { try { if (!p.HasExited) p.Kill(entireProcessTree: true); } catch (Exception ex) { Logger.Debug(ex, "Nepodařilo se ukončit proces {FileName}", Path.GetFileName(fileName)); } });
 
         p.OutputDataReceived += (_, e) =>
         {
@@ -194,7 +144,7 @@ public class Runner
                 ? string.Join("\n", stderrLines)
                 : $"exit code {p.ExitCode}";
             Logger.Error("{ErrorPrefix}: {Detail}", errorPrefix, detail);
-            throw new Exception($"{errorPrefix}:\n{detail}");
+            throw new InvalidOperationException($"{errorPrefix}:\n{detail}");
         }
         Logger.Debug("Proces {FileName} skončil úspěšně (exit code 0)", Path.GetFileName(fileName));
     }
@@ -213,23 +163,5 @@ public class Runner
         foreach (var file in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
             File.SetAttributes(file, FileAttributes.Normal);
         Directory.Delete(path, true);
-    }
-
-    private static async Task<T> WithRetryAsync<T>(Func<Task<T>> action, CancellationToken ct, int maxAttempts = 3)
-    {
-        var delay = TimeSpan.FromSeconds(1);
-        for (var attempt = 1; ; attempt++)
-        {
-            try
-            {
-                return await action();
-            }
-            catch (HttpRequestException ex) when (attempt < maxAttempts)
-            {
-                Logger.Warning(ex, "HTTP chyba (pokus {Attempt}/{Max}), zkouším znovu za {Delay}s", attempt, maxAttempts, delay.TotalSeconds);
-                await Task.Delay(delay, ct);
-                delay *= 2;
-            }
-        }
     }
 }

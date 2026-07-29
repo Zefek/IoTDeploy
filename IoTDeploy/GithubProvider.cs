@@ -67,7 +67,7 @@ public class GithubProvider
         }
         try
         {
-            pemContent = File.ReadAllText(_pemKeyPath);
+            pemContent = await File.ReadAllTextAsync(_pemKeyPath);
         }
         catch (Exception ex)
         {
@@ -114,6 +114,9 @@ public class GithubProvider
             SigningCredentials = new SigningCredentials(
                 new RsaSecurityKey(rsaKey),
                 SecurityAlgorithms.RsaSha256)
+            {
+                CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+            }
         };
 
         var handler = new JwtSecurityTokenHandler();
